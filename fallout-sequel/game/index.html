@@ -12,467 +12,935 @@
   --primary:#14FE17; --primary-dim:#0FA511; --secondary:#8C9484;
   --tertiary:#FFB642; --danger:#FF4633;
   --neutral:#0B0F0A; --neutral-raised:#12180F; --paper:#D8D2C0;
-  --sp-xs:4px; --sp-sm:8px; --sp-md:16px; --sp-lg:24px;
-  --r-sm:2px; --r-md:6px;
   --mono:"Share Tech Mono","Courier New",monospace;
-  --sans:"Segoe UI",system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{
-  background:var(--neutral); color:var(--primary);
-  font-family:var(--mono); font-size:16px; line-height:1.5;
-  overflow:hidden; user-select:none; -webkit-user-select:none;
-}
+html,body{height:100%;overflow:hidden}
+body{background:var(--neutral);color:var(--primary);font-family:var(--mono);
+  font-size:16px;line-height:1.45;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#world{position:fixed;inset:0;display:block}
 #crt{position:fixed;inset:0;pointer-events:none;z-index:99;
-  background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px);}
-#vignette{position:fixed;inset:0;pointer-events:none;z-index:98;
-  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%);}
-#app{height:100%;display:flex;flex-direction:column;max-width:1100px;margin:0 auto;
-  padding:max(var(--sp-md),env(safe-area-inset-top)) var(--sp-md) max(var(--sp-md),env(safe-area-inset-bottom));}
-h1,h2,h3{letter-spacing:.06em;text-shadow:0 0 8px rgba(20,254,23,.45)}
-h1{font-size:1.7rem} h2{font-size:1.25rem;margin-bottom:var(--sp-sm)}
-.dim{color:var(--primary-dim)} .sec{color:var(--secondary)}
-.amber{color:var(--tertiary)} .red{color:var(--danger)}
-.panel{background:var(--neutral-raised);border:1px solid var(--primary-dim);
-  outline:1px solid rgba(20,254,23,.25);outline-offset:2px;
-  border-radius:var(--r-md);padding:var(--sp-md);}
-button{
-  font-family:var(--mono);font-size:1rem;color:var(--primary);
-  background:var(--neutral);border:1px solid var(--primary);
-  border-radius:var(--r-sm);padding:10px 14px;min-height:48px;cursor:pointer;
-  text-align:left;width:100%;
-}
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px)}
+#vig{position:fixed;inset:0;pointer-events:none;z-index:98;
+  background:radial-gradient(ellipse at center,transparent 58%,rgba(0,0,0,.5) 100%)}
+h1,h2{letter-spacing:.06em;text-shadow:0 0 8px rgba(20,254,23,.45)}
+.dim{color:var(--primary-dim)}.sec{color:var(--secondary)}.amber{color:var(--tertiary)}.red{color:var(--danger)}
+button{font-family:var(--mono);font-size:1rem;color:var(--primary);background:rgba(11,15,10,.92);
+  border:1px solid var(--primary);border-radius:2px;padding:10px 14px;min-height:46px;cursor:pointer;text-align:left;width:100%}
 button:active{background:var(--primary-dim);color:var(--neutral)}
 button.primary{background:var(--primary);color:var(--neutral);font-weight:bold}
-button.primary:active{background:var(--primary-dim)}
-button:disabled{border-color:var(--secondary);color:var(--secondary);cursor:default}
-button.inline{width:auto;min-height:40px;padding:6px 12px}
-.tag{color:var(--tertiary);font-size:.85em;letter-spacing:.1em}
+button:disabled{border-color:var(--secondary);color:var(--secondary)}
+button.sq{width:52px;height:52px;min-height:52px;padding:0;text-align:center;font-size:1.15rem}
+button.on{background:var(--primary);color:var(--neutral)}
+.tag{color:var(--tertiary);font-size:.85em;letter-spacing:.08em}
 .tag.off{color:var(--secondary)}
-.row{display:flex;gap:var(--sp-sm);align-items:center;flex-wrap:wrap}
-.grow{flex:1}
-.stack{display:flex;flex-direction:column;gap:var(--sp-sm)}
-.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
-.center{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:var(--sp-md)}
-hr{border:0;border-top:1px solid var(--primary-dim);margin:var(--sp-sm) 0}
-/* header */
-#hud{display:flex;gap:var(--sp-sm);align-items:center;padding-bottom:var(--sp-sm);
-  border-bottom:1px solid var(--primary-dim);margin-bottom:var(--sp-sm);font-size:.9rem}
-#hud .pill{border:1px solid var(--primary-dim);border-radius:var(--r-sm);padding:2px 8px;white-space:nowrap}
-/* screens */
-.screen{flex:1;display:flex;flex-direction:column;min-height:0}
-.narr{flex:1;min-height:0}
-.narr .text{white-space:pre-wrap;margin-bottom:var(--sp-md)}
-.speaker{color:var(--tertiary);letter-spacing:.1em;font-size:.85rem;margin-bottom:var(--sp-xs)}
-/* SPECIAL creation */
-.statline{display:flex;align-items:center;gap:var(--sp-sm);padding:4px 0}
-.statline .nm{width:11.5em}
-.statline .val{width:2em;text-align:center;font-size:1.2rem}
-.bump{width:44px;height:44px;min-height:44px;text-align:center;padding:0;font-size:1.3rem}
-/* combat */
-#grid{display:grid;gap:3px;margin:var(--sp-sm) auto;touch-action:manipulation}
-.cell{position:relative;background:var(--neutral-raised);border:1px solid rgba(15,165,17,.25);
-  border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
-  font-size:1.25rem;cursor:pointer}
-.cell.obst{background:#0e120c;border-color:rgba(140,148,132,.3);color:var(--secondary);cursor:default}
-.cell.path{box-shadow:inset 0 0 0 2px rgba(20,254,23,.35)}
-.cell .hp{position:absolute;left:3px;right:3px;bottom:2px;height:3px;background:#20301c}
-.cell .hp i{display:block;height:100%;background:var(--danger)}
-.cell.me{box-shadow:inset 0 0 0 2px var(--primary)}
-.cell .pct{position:absolute;top:1px;right:3px;font-size:.62rem;color:var(--tertiary)}
+/* HUD */
+#hud{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;gap:6px;align-items:center;
+  padding:calc(6px + env(safe-area-inset-top)) 10px 6px;font-size:.85rem;pointer-events:none;flex-wrap:wrap}
+#hud .pill{border:1px solid var(--primary-dim);background:rgba(11,15,10,.85);border-radius:2px;padding:2px 8px;white-space:nowrap}
+#btns{position:fixed;right:max(8px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));
+  z-index:40;display:flex;flex-direction:column;gap:8px}
+#combatbar{position:fixed;left:max(8px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));
+  z-index:40;display:none;flex-direction:column;gap:6px;max-width:60vw}
 .apbar{display:flex;gap:3px}
-.apbar i{width:16px;height:10px;background:#1c2b18;border:1px solid var(--primary-dim)}
+.apbar i{width:15px;height:9px;background:#1c2b18;border:1px solid var(--primary-dim)}
 .apbar i.on{background:var(--primary)}
-#log{font-size:.82rem;max-height:5.2em;overflow-y:auto;color:var(--secondary)}
-#log .last{color:var(--primary)}
-/* pipboy */
-#pipbtn{position:fixed;right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));
-  width:auto;z-index:50;min-height:40px;padding:6px 10px;background:var(--neutral-raised)}
-.tabs{display:flex;gap:var(--sp-xs);margin-bottom:var(--sp-sm)}
-.tabs button{min-height:40px;padding:6px 8px;font-size:.85rem;text-align:center}
-.tabs button.on{background:var(--primary);color:var(--neutral)}
-.kv{display:flex;justify-content:space-between;gap:var(--sp-sm);padding:3px 0;border-bottom:1px dashed rgba(15,165,17,.25)}
-.paper{background:var(--paper);color:var(--neutral);border-radius:0;padding:var(--sp-sm);font-family:var(--sans)}
+#clog{font-size:.78rem;color:var(--secondary);background:rgba(11,15,10,.75);padding:4px 8px;border-radius:2px;max-width:100%}
+#clog b{color:var(--primary);font-weight:normal}
+/* оверлеи: меню/создание/диалог/пип-бой */
+#ovl{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;
+  background:rgba(5,8,5,.94);padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))}
+#ovl.show{display:flex}
+#ovl .inner{width:min(680px,100%);margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0}
+#dlg{position:fixed;left:0;right:0;bottom:0;z-index:45;display:none;
+  background:rgba(9,13,9,.96);border-top:1px solid var(--primary-dim);
+  padding:10px 14px max(12px,env(safe-area-inset-bottom));max-height:62vh;overflow-y:auto}
+#dlg.show{display:block}
+#dlg .who{color:var(--tertiary);font-size:.8rem;letter-spacing:.1em;margin-bottom:4px}
+#dlg .txt{white-space:pre-wrap;margin-bottom:10px}
+#dlg .opts{display:flex;flex-direction:column;gap:6px;max-width:680px}
+.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.stack{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grow{flex:1}
+.panel{background:var(--neutral-raised);border:1px solid var(--primary-dim);border-radius:6px;padding:14px}
+.statline{display:flex;align-items:center;gap:8px;padding:3px 0}
+.statline .nm{width:11em}.statline .val{width:2em;text-align:center;font-size:1.15rem}
+.bump{width:46px;height:46px;min-height:46px;text-align:center;padding:0;font-size:1.3rem}
+.kv{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px dashed rgba(15,165,17,.25)}
+.tabs{display:flex;gap:4px;margin-bottom:8px}
+.tabs button{min-height:42px;padding:6px;text-align:center;font-size:.85rem}
+.paper{background:var(--paper);color:var(--neutral);padding:8px;font-family:var(--sans);font-size:.85rem}
 .small{font-size:.85rem}
 .blink{animation:bl 1.1s steps(2) infinite}
 @keyframes bl{50%{opacity:.25}}
-@media (max-width:520px){ body{font-size:15px} .statline .nm{width:9em} }
+#toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(44px + env(safe-area-inset-top));z-index:60;
+  background:rgba(18,24,15,.95);border:1px solid var(--tertiary);color:var(--tertiary);
+  padding:7px 13px;border-radius:2px;font-size:.88rem;max-width:92vw;display:none;text-align:center}
+@media (max-width:520px){body{font-size:15px}.statline .nm{width:8.5em}}
 </style>
 </head>
 <body>
-<div id="crt"></div><div id="vignette"></div>
-<button id="pipbtn" style="display:none">ПИП-БОЙ</button>
-<div id="app"></div>
+<canvas id="world"></canvas>
+<div id="crt"></div><div id="vig"></div>
+<div id="hud" style="display:none"></div>
+<div id="btns" style="display:none"></div>
+<div id="combatbar"></div>
+<div id="dlg"></div>
+<div id="ovl" class="show"><div class="inner" id="ovlbox"></div></div>
+<div id="toast"></div>
 
 <script>
 "use strict";
-/* =========================================================
-   Fallout: Cascadia Rising — играбельный вертикальный срез
-   Системы по дизайн-докам: S.P.E.C.I.A.L., трейты, навыки,
-   пороговые диалог-проверки, пошаговый бой на ОД, карма.
-   ========================================================= */
+/* =====================================================================
+   FALLOUT: CASCADIA RISING · v2 — изометрический мир
+   Отрисованный мир (Canvas, пиксель-арт), tap-to-move, NPC на карте,
+   скрытность в мире, пошаговый бой на той же карте, Пип-бой, сейвы.
+   ===================================================================== */
 const $=s=>document.querySelector(s);
-const app=$("#app");
 const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const cheb=(x1,y1,x2,y2)=>Math.max(Math.abs(x1-x2),Math.abs(y1-y2));
 
-/* ---------- данные систем ---------- */
+/* ---------------- СИСТЕМЫ ПЕРСОНАЖА (из дизайн-дока) ---------------- */
 const SPECIAL=[["S","Сила"],["P","Восприятие"],["E","Выносливость"],["C","Харизма"],["I","Интеллект"],["A","Ловкость"],["L","Удача"]];
 const SKILLS=[
- {id:"small", n:"Лёгкое оружие", base:p=>5+4*p.sp.A, combat:1},
- {id:"melee", n:"Холодное оружие",base:p=>20+2*(p.sp.A+p.sp.S), combat:1},
- {id:"unarm", n:"Без оружия",    base:p=>30+2*(p.sp.A+p.sp.S), combat:1},
- {id:"energy",n:"Энергооружие",  base:p=>2*p.sp.A, combat:1},
- {id:"sneak", n:"Скрытность",    base:p=>5+3*p.sp.A},
- {id:"lock",  n:"Взлом",         base:p=>10+p.sp.P+p.sp.A},
- {id:"steal", n:"Кража",         base:p=>3*p.sp.A},
- {id:"med",   n:"Медицина",      base:p=>15+p.sp.P+p.sp.I},
- {id:"sci",   n:"Наука",         base:p=>4*p.sp.I},
- {id:"rep",   n:"Ремонт",        base:p=>20+p.sp.I+Math.floor(p.sp.A/2)},
- {id:"speech",n:"Речь",          base:p=>25+2*p.sp.C},
- {id:"barter",n:"Бартер",        base:p=>20+2*p.sp.C},
- {id:"surv",  n:"Выживание",     base:p=>5+p.sp.P+p.sp.E},
- {id:"gamble",n:"Азарт",         base:p=>3*p.sp.L},
+ {id:"small",n:"Лёгкое оружие",base:p=>5+4*p.A,c:1},
+ {id:"melee",n:"Холодное оружие",base:p=>20+2*(p.A+p.S),c:1},
+ {id:"unarm",n:"Без оружия",base:p=>30+2*(p.A+p.S),c:1},
+ {id:"energy",n:"Энергооружие",base:p=>2*p.A,c:1},
+ {id:"sneak",n:"Скрытность",base:p=>5+3*p.A},
+ {id:"lock",n:"Взлом",base:p=>10+p.P+p.A},
+ {id:"steal",n:"Кража",base:p=>3*p.A},
+ {id:"med",n:"Медицина",base:p=>15+p.P+p.I},
+ {id:"sci",n:"Наука",base:p=>4*p.I},
+ {id:"rep",n:"Ремонт",base:p=>20+p.I+Math.floor(p.A/2)},
+ {id:"speech",n:"Речь",base:p=>25+2*p.C},
+ {id:"barter",n:"Бартер",base:p=>20+2*p.C},
+ {id:"surv",n:"Выживание",base:p=>5+p.P+p.E},
+ {id:"gamble",n:"Азарт",base:p=>3*p.L},
 ];
 const TRAITS=[
- {id:"fast",  n:"Быстрый стрелок", d:"Атаки −1 ОД, но прицельные выстрелы недоступны."},
- {id:"gift",  n:"Одарённый",       d:"+1 ко всем S.P.E.C.I.A.L., −10% ко всем навыкам."},
- {id:"fin",   n:"Финесса",         d:"+10% шанс крита, −30% обычный урон."},
- {id:"blood", n:"Кровавая баня",   d:"+5% урона. Враги умирают... выразительно."},
- {id:"good",  n:"Добряк",          d:"+15% Речь/Медицина/Бартер, −10% боевые навыки."},
- {id:"night", n:"Ночной житель",   d:"+10% Скрытность и Наука (вечная пепельная мгла)."},
+ {id:"fast",n:"Быстрый стрелок",d:"Атаки −1 ОД, но без прицельных выстрелов."},
+ {id:"gift",n:"Одарённый",d:"+1 ко всем S.P.E.C.I.A.L., −10% ко всем навыкам."},
+ {id:"fin",n:"Финесса",d:"+10% шанс крита, −30% обычный урон."},
+ {id:"blood",n:"Кровавая баня",d:"+5% урона. Враги умирают выразительно."},
+ {id:"good",n:"Добряк",d:"+15% Речь/Медицина/Бартер, −10% боевые навыки."},
+ {id:"night",n:"Ночной житель",d:"+10% Скрытность и Наука."},
 ];
 const WEAPONS={
  fists:{n:"Кулаки",skill:"unarm",dmg:[1,4],ap:3,rng:1},
  spear:{n:"Копьё деда",skill:"melee",dmg:[3,7],ap:3,rng:1},
- knife:{n:"Ржавый нож",skill:"melee",dmg:[2,5],ap:2,rng:1},
  pistol:{n:"Пистолет 9мм",skill:"small",dmg:[5,10],ap:4,rng:7},
  rifle:{n:"Охотничья винтовка",skill:"small",dmg:[8,14],ap:5,rng:9},
 };
 const AIM={none:{n:"Торс",mod:0,dm:1},head:{n:"Голова",mod:-40,dm:1.8},legs:{n:"Ноги",mod:-20,dm:1,trip:true}};
 const XP_LVL=[0,1000,3000,6000,10000];
 
-/* ---------- состояние ---------- */
-function freshPlayer(){
-  const p={name:"Наследник",sp:{S:5,P:5,E:5,C:5,I:5,A:5,L:5},traits:[],tags:[],spent:{},
-    level:1,xp:0,skpts:0,karma:0,caps:40,
-    inv:{stim:2,spear:1},weapon:"spear",flags:{},journal:[]};
-  return p;
-}
 let P=null;
-
-function trait(id){return P.traits.includes(id)}
-function stat(k){return P.sp[k]+(trait("gift")?1:0)}
-function maxHP(){return 15+stat("S")+2*stat("E")+ (P.level-1)*(3+Math.floor(stat("E")/2))}
-function maxAP(){return 5+Math.floor(stat("A")/2)}
+function freshPlayer(){return{name:"Наследник",sp:{S:5,P:5,E:5,C:5,I:5,A:5,L:5},traits:[],tags:[],spent:{},
+  level:1,xp:0,skpts:0,karma:0,caps:40,inv:{stim:2,spear:1},weapon:"spear",flags:{},journal:[],hp:0}}
+const trait=id=>P.traits.includes(id);
+const stat=k=>P.sp[k]+(trait("gift")?1:0);
+const maxHP=()=>15+stat("S")+2*stat("E")+(P.level-1)*(3+Math.floor(stat("E")/2));
+const maxAP=()=>5+Math.floor(stat("A")/2);
 function skill(id){
   const s=SKILLS.find(x=>x.id===id);
-  const pseudo={sp:{S:stat("S"),P:stat("P"),E:stat("E"),C:stat("C"),I:stat("I"),A:stat("A"),L:stat("L")}};
-  let v=s.base(pseudo)+(P.tags.includes(id)?20:0)+(P.spent[id]||0)*(P.tags.includes(id)?2:1);
+  const sp={S:stat("S"),P:stat("P"),E:stat("E"),C:stat("C"),I:stat("I"),A:stat("A"),L:stat("L")};
+  let v=s.base(sp)+(P.tags.includes(id)?20:0)+(P.spent[id]||0)*(P.tags.includes(id)?2:1);
   if(trait("gift"))v-=10;
-  if(trait("good")){ if(["speech","med","barter"].includes(id))v+=15; if(s.combat)v-=10; }
+  if(trait("good")){if(["speech","med","barter"].includes(id))v+=15;if(s.c)v-=10}
   if(trait("night")&&["sneak","sci"].includes(id))v+=10;
   return clamp(v,0,200);
 }
-function giveXP(n,why){
-  P.xp+=n; log2(`+${n} XP${why?" — "+why:""}`);
-  while(P.level<XP_LVL.length && P.xp>=XP_LVL[P.level]){
-    P.level++; P.skpts+=5+2*stat("I"); P.hp=maxHP();
-    toast(`УРОВЕНЬ ${P.level}! Очков навыков: +${5+2*stat("I")} (Пип-бой → НАВЫКИ)`);
+function roll(id,diff){const ch=clamp(skill(id)-diff+30,5,95);return{ok:rnd(1,100)<=ch,ch}}
+function giveXP(n,why){P.xp+=n;toast(`+${n} XP${why?" — "+why:""}`);
+  while(P.level<XP_LVL.length&&P.xp>=XP_LVL[P.level]){P.level++;P.skpts+=5+2*stat("I");P.hp=maxHP();
+    toast(`УРОВЕНЬ ${P.level}! Очки навыков: +${5+2*stat("I")} (Пип-бой)`)}}
+function karma(n){P.karma+=n;toast(n>0?`Карма +${n}`:`Карма ${n}`)}
+function journal(t){P.journal.unshift(t)}
+const F=()=>P.flags;
+function save(){try{localStorage.setItem("cascadia2",JSON.stringify({P,map:W.mapId,x:pl.x,y:pl.y}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem("cascadia2"));
+  if(d&&d.P){P=d.P;startWorld();loadMap(d.map||"arroyo",d.x,d.y);return true}}catch(e){}return false}
+
+let toastT=null;
+function toast(t){const el=$("#toast");el.textContent=t;el.style.display="block";
+  clearTimeout(toastT);toastT=setTimeout(()=>el.style.display="none",2500)}
+
+/* =====================================================================
+   ПИКСЕЛЬ-АРТ: спрайты из строк (палитра → цвета)
+   ===================================================================== */
+function makeSprite(rows,pal,scale){
+  scale=scale||3;
+  const h=rows.length,w=rows[0].length;
+  const c=document.createElement("canvas");c.width=w*scale;c.height=h*scale;
+  const g=c.getContext("2d");
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const ch=rows[y][x];if(ch==="."||!pal[ch])continue;
+    g.fillStyle=pal[ch];g.fillRect(x*scale,y*scale,scale,scale);
+  }
+  return c;
+}
+const SPR={};
+function buildSprites(){
+  const humanRows=[
+   "...hh...",
+   "..hhhh..",
+   "..ssss..",
+   "..ssss..",
+   ".tttttt.",
+   "tttttttt",
+   "t.tttt.t",
+   "s.tttt.s",
+   "..tttt..",
+   "..lllL..",
+   "..l..l..",
+   "..b..b..",
+  ];
+  const human=(hair,skin,tunic,legs,boots)=>makeSprite(humanRows,
+    {h:hair,s:skin,t:tunic,l:legs,L:legs,b:boots});
+  SPR.hero  =human("#2a1c10","#c98d5a","#7a5a34","#4c3a24","#2c2118");
+  SPR.elder =human("#cfcfc6","#b98a60","#5d6156","#3c3f38","#2c2118");
+  SPR.villager=human("#4a3a20","#c98d5a","#5a6a4a","#3a4432","#2c2118");
+  SPR.yuna  =human("#8a2f2f","#d19a68","#8a6a2a","#4c3a24","#2c2118");
+  SPR.vega  =human("#6b5637","#caa27a","#6e5a3c","#43382a","#221a12");
+  SPR.bart  =human("#7a6a58","#c98d5a","#6a5a4a","#3a3226","#2c2118");
+  SPR.slate =human("#3a3a3a","#b98a60","#44484f","#33363c","#222");
+  SPR.cult  =human("#777d75","#9aa198","#5a5f58","#44483f","#333")
+  ;SPR.raider=human("#222","#c07d4a","#5f4632","#3c2f22","#1e1812");
+  SPR.officer=makeSprite([
+   "..kkkk..",
+   ".kggggk.",
+   ".kkkkkk.",
+   "kkkkkkkk",
+   "k.kkkk.k",
+   "k.kkkk.k",
+   "..kkkk..",
+   "..kkkk..",
+   "..k..k..",
+   "..k..k..",
+   "..m..m..",
+  ],{k:"#23282a",g:"#14FE17",m:"#101314"});
+  SPR.gecko=makeSprite([
+   "........gg",
+   "..ggggg.gg",
+   ".gggggggg.",
+   "gg.gg.gg..",
+  ],{g:"#5f8a3a"},4);
+  SPR.tree=makeSprite([
+   "...ff...",
+   "..ffff..",
+   ".ffffff.",
+   "..ffff..",
+   "...tt...",
+   "...tt...",
+  ],{f:"#3c4a36",t:"#4a3826"},4);
+  SPR.deadtree=makeSprite([
+   ".b...b..",
+   "..b.b...",
+   "...bb...",
+   "...b....",
+   "...bb...",
+   "...b....",
+  ],{b:"#55504a"},4);
+  SPR.rock=makeSprite([
+   "..rrr...",
+   ".rrrrr..",
+   "rrrrrrr.",
+  ],{r:"#5a5f5a"},4);
+  SPR.hut=makeSprite([
+   "...pppp...",
+   "..pppppp..",
+   ".pppppppp.",
+   "wwwwwwwwww",
+   "w.wwwwww.w",
+   "www.dd.www",
+   "www.dd.www",
+  ],{p:"#6a5a3c",w:"#7a6a4c",d:"#3a2f22"},4);
+  SPR.tent=makeSprite([
+   "....t.....",
+   "...ttt....",
+   "..ttttt...",
+   ".ttt.ttt..",
+   "ttt...ttt.",
+  ],{t:"#6b5a44"},4);
+  SPR.crate=makeSprite([
+   "cccccc",
+   "c.cc.c",
+   "cccccc",
+   "c.cc.c",
+   "cccccc",
+  ],{c:"#7a6a48"},4);
+  SPR.term=makeSprite([
+   ".kkkk.",
+   ".kggk.",
+   ".kkkk.",
+   "..kk..",
+   ".kkkk.",
+  ],{k:"#30363a",g:"#14FE17"},4);
+  SPR.gate=makeSprite([
+   "g.g.g.g",
+   "ggggggg",
+   "g.g.g.g",
+   "ggggggg",
+   "g.g.g.g",
+  ],{g:"#5c6258"},4);
+  SPR.door=makeSprite([
+   "dddddd",
+   "d....d",
+   "d....d",
+   "d....d",
+   "dddddd",
+  ],{d:"#8a7a50"},4);
+}
+
+/* =====================================================================
+   КАРТЫ. Легенда: '.' пепел  ',' земля  ':' тропа  '_' пол пещеры
+   '#' скала(стена)  'w' вода  T дерево  t сухостой  r камень
+   H хижина  A палатка  C ящик  F костёр
+   ===================================================================== */
+const MAPS={
+arroyo:{name:"НЬЮ-АРРОЙО",amb:"#161a14",
+ grid:[
+ "####################",
+ "#..T,,,,,:,,,,T....#",
+ "#.,,,H,,,:,,,H,,,..#",
+ "#T,,,,,,,:,,,,,,,T.#",
+ "#.,,H,,,,:,,,,H,,..#",
+ "#..,,,,,F:F,,,,,,T.#",
+ "#T.,,,::::::,,,,...#",
+ "#...,,:,,,,:,,,....#",
+ "#.T...:,,,,:....r..#",
+ "#.....:,,,,:.......#",
+ "#..r..:,,,,:....T..#",
+ "#T....:,,,,:.......#",
+ "####################"],
+ ents:[
+  {id:"elder",spr:"elder",x:9,y:4,name:"Старейшина Мора",dlg:"arroyo_1"},
+  {id:"vill1",spr:"villager",x:5,y:5,name:"Житель",dlg:"villager"},
+  {id:"vill2",spr:"villager",x:13,y:5,name:"Житель",dlg:"villager2"},
+  {id:"ex_temple",exit:1,x:6,y:11,to:"temple",tx:2,ty:2,label:"ХРАМ ВЕТРОВ"},
+  {id:"ex_world",exit:1,x:11,y:11,to:"worldmap",label:"В ПУСТОШЬ",need:()=>F().temple?null:"Сначала пройдите Храм Ветров (выход слева)"},
+ ]},
+temple:{name:"ХРАМ ВЕТРОВ",amb:"#101410",cave:1,
+ grid:[
+ "################",
+ "#____#____#____#",
+ "#_____#_______G#",
+ "#__#___#__##___#",
+ "###__#__#___#__#",
+ "#__#___________#",
+ "#_____##__#__###",
+ "#__#______#____#",
+ "################"],
+ ents:[
+  {id:"gecko",spr:"gecko",x:8,y:5,name:"Золотой гекко",hostile:1,hp:22,dmg:[2,6],ap:6,rng:1,aggro:3,
+   xp:150,onDeath:()=>{F().temple="бой";toast("Путь свободен.")}},
+  {id:"tterm",spr:"term",x:2,y:6,name:"Древний терминал",use:"temple_term"},
+  {id:"tgate",spr:"gate",x:14,y:2,name:"Ржавая решётка",use:"temple_gate",block:1},
+  {id:"ex_out",exit:1,x:14,y:7,to:"arroyo",tx:6,ty:10,label:"ВЫХОД",
+   need:()=>{if(F().temple)return null;
+     if(pl.sneak&&pl.sneakOk){F().temple="тень";giveXP(150,"Храм: путь тени");return null}
+     return "Гекко сторожит проход. Бой, скрытность (🕶), решётка или терминал."}},
+ ]},
+pass:{name:"ПЕРЕВАЛ КАСКАДОВ",amb:"#14171a",
+ grid:[
+ "######wwww##########",
+ "#..t..w..w....r....#",
+ "#..:::w..w:::......#",
+ "#..:..wwww..:..t...#",
+ "#..:........::::...#",
+ "#t.:...F.......:..t#",
+ "#..::::A::::...:...#",
+ "#......t...:::::...#",
+ "#..r...........:..t#",
+ "#t.......t.....:...#",
+ "######################".slice(0,20)],
+ ents:[
+  {id:"cult1",spr:"cult",x:6,y:5,name:"Пепельник",hostile:0,dlg:"cult_talk",hp:20,dmg:[3,6],ap:6,rng:1,aggro:0,xp:90},
+  {id:"cult2",spr:"cult",x:9,y:7,name:"Пепельник",hostile:0,dlg:"cult_talk",hp:20,dmg:[3,6],ap:6,rng:1,aggro:0,xp:90},
+  {id:"cultL",spr:"cult",x:8,y:6,name:"Жрец пепла",hostile:0,dlg:"cult_talk",hp:28,dmg:[4,8],ap:5,rng:5,aggro:0,xp:140},
+  {id:"ex_south",exit:1,x:2,y:1,to:"worldmap",label:"НАЗАД"},
+  {id:"ex_north",exit:1,x:15,y:9,to:"market",tx:2,ty:7,label:"К РЖАВОМУ РЫНКУ",
+   need:()=>{if(F().pass)return null;
+     if(pl.sneak&&pl.sneakOk){F().pass=1;giveXP(150,"перевал: путь тени");return null}
+     return "Пепельники преграждают тропу. Поговорите — или прорвитесь."}},
+ ]},
+market:{name:"РЖАВЫЙ РЫНОК",amb:"#181712",
+ grid:[
+ "######################",
+ "#.,,,,,,:,,,,,,,,,,,.#",
+ "#.,H,,,,:,,,C,,,H,,..#",
+ "#.,,,,C,:,,,,,,,,,,,.#",
+ "#.,,,,,,:,,,,,F,,,,,.#",
+ "#,::::::::::::::::,,.#",
+ "#.,,C,,,:,,,,,,,,:,,.#",
+ "#.,,,,,,:,,H,,,,,:,,.#",
+ "#.,H,,,,:,,,,,C,,:,,.#",
+ "#.,,,,,,:,,,,,,,,:,,.#",
+ "#.,,,,,,,,,,,,,,,::,.#",
+ "######################"],
+ ents:[
+  {id:"yuna",spr:"yuna",x:6,y:2,name:"Юна, торговка",dlg:"shop"},
+  {id:"vega",spr:"vega",x:13,y:4,name:"Агент Вега (НКР)",dlg:"ncr_1"},
+  {id:"bart",spr:"bart",x:11,y:8,name:"Караванщик Барт",dlg:"depot_1"},
+  {id:"slate",spr:"slate",x:15,y:4,name:"Слейт (спит у костра)",dlg:"slate"},
+  {id:"ddoor",spr:"door",x:13,y:9,name:"Склад: электрозамок",use:"depot_door",block:1},
+  {id:"ex_south",exit:1,x:18,y:10,to:"worldmap",label:"В ПУСТОШЬ"},
+ ]},
+station:{name:"МЕТЕОСТАНЦИЯ «ГОРНЫЙ СТРАЖ»",amb:"#10151a",
+ grid:[
+ "##############",
+ "#....#_______#",
+ "#....#___#___#",
+ "#....D_______#",
+ "#....#___#___#",
+ "#....#_______#",
+ "##..##########",
+ "#............#",
+ "#..r......t..#",
+ "##############"],
+ ents:[
+  {id:"officer",spr:"officer",x:11,y:1,name:"Офицер Анклава",hostile:1,hp:45,dmg:[6,11],ap:7,rng:6,aggro:4,
+   xp:400,onDeath:()=>{F().officer_dead=1;toast("Путь к терминалу свободен.")}},
+  {id:"sterm",spr:"term",x:11,y:4,name:"Терминал станции",use:"finale"},
+  {id:"ex_out",exit:1,x:2,y:8,to:"worldmap",label:"НАЗАД"},
+ ]},
+};
+// многоклеточные декорации ставятся символами сетки; двери 'D' в сетке — проход
+const TILE={".":{g:"ash"},"," :{g:"dirt"},":":{g:"path"},"_":{g:"cave"},
+ "#":{g:"wall",b:1},"w":{g:"water",b:1},
+ "T":{g:"ash",p:"tree",b:1},"t":{g:"ash",p:"deadtree",b:1},"r":{g:"ash",p:"rock",b:1},
+ "H":{g:"dirt",p:"hut",b:1},"A":{g:"dirt",p:"tent",b:1},"C":{g:"dirt",p:"crate",b:1},
+ "F":{g:"dirt",p:"fire"},"D":{g:"cave"},"G":{g:"cave"}};
+
+/* =====================================================================
+   ДВИЖОК МИРА
+   ===================================================================== */
+const TW=64,TH=32;
+const cv=$("#world"),ctx=cv.getContext("2d");
+let DPR=1,VW=0,VH=0;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);
+  VW=cv.width=Math.floor(innerWidth*DPR);VH=cv.height=Math.floor(innerHeight*DPR);
+  cv.style.width=innerWidth+"px";cv.style.height=innerHeight+"px"}
+addEventListener("resize",resize);resize();
+
+const W={mapId:null,grid:null,w:0,h:0,ents:[],mode:"menu",cam:{x:0,y:0},zoom:1.15,floats:[],t:0};
+const pl={x:2,y:2,px:2,py:2,path:[],pend:null,sneak:false,sneakOk:false};
+const CB={ap:0,aim:"none",busy:false}; // боевое состояние
+
+const isoX=(x,y)=>(x-y)*TW/2;
+const isoY=(x,y)=>(x+y)*TH/2;
+function tileAt(x,y){if(x<0||y<0||x>=W.w||y>=W.h)return TILE["#"];return TILE[W.grid[y][x]]||TILE["."]}
+function entAt(x,y){return W.ents.find(e=>!e.dead&&!e.exit&&e.x===x&&e.y===y)}
+function exitAt(x,y){return W.ents.find(e=>e.exit&&e.x===x&&e.y===y)}
+function blocked(x,y){const t=tileAt(x,y);if(t.b)return true;
+  const e=entAt(x,y);return !!(e&&(e.block||e.hostile!==undefined&&!e.dead))||!!(e)}
+function passableForPath(x,y){const t=tileAt(x,y);if(t.b)return false;
+  const e=entAt(x,y);return !(e&&(e.block||!e.dead))}
+function bfsPath(sx,sy,tx,ty){
+  if(!passableForPath(tx,ty)&&!(tx===sx&&ty===sy))return null;
+  const prev={},Q=[[sx,sy]];prev[sx+","+sy]=null;
+  while(Q.length){const[x,y]=Q.shift();
+    if(x===tx&&y===ty){const path=[];let k=x+","+y;
+      while(prev[k]){path.unshift(k.split(",").map(Number));k=prev[k]}
+      return path}
+    for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){
+      const nx=x+dx,ny=y+dy,k=nx+","+ny;
+      if(prev[k]!==undefined||!passableForPath(nx,ny))continue;
+      prev[k]=x+","+y;Q.push([nx,ny])}}
+  return null;
+}
+function nearestFree(tx,ty,sx,sy){ // ближайшая проходимая клетка рядом с целью
+  let best=null,bd=1e9;
+  for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]){
+    const nx=tx+dx,ny=ty+dy;
+    if(!passableForPath(nx,ny))continue;
+    const d=Math.abs(nx-sx)+Math.abs(ny-sy);
+    if(d<bd){bd=d;best=[nx,ny]}}
+  return best;
+}
+function float(x,y,txt,color){W.floats.push({x,y,txt,color:color||"#FFB642",t:0})}
+
+/* ---------- загрузка карты ---------- */
+function loadMap(id,px,py){
+  if(id==="worldmap"){showWorldMap();return}
+  const m=MAPS[id];W.mapId=id;W.grid=m.grid;W.h=m.grid.length;W.w=m.grid[0].length;
+  W.ents=m.ents.filter(e=>!(P.flags["dead_"+id+"_"+e.id])).map(e=>({...e,maxhp:e.hp}));
+  // враги, помеченные как убитые ранее, не возвращаются
+  pl.x=px!==undefined?px:2;pl.y=py!==undefined?py:2;pl.px=pl.x;pl.py=pl.y;pl.path=[];pl.pend=null;
+  W.mode="explore";CB.busy=false;$("#combatbar").style.display="none";
+  toast(m.name);save();updateHUD();
+}
+/* ---------- HUD ---------- */
+function updateHUD(){
+  const hud=$("#hud");hud.style.display="flex";$("#btns").style.display="flex";
+  hud.innerHTML=`<span class="pill">${esc(P.name)} · ур.${P.level}</span>
+   <span class="pill ${P.hp<maxHP()*.3?'red':''}">ОЗ ${P.hp}/${maxHP()}</span>
+   <span class="pill amber">₵ ${P.caps}</span>
+   ${W.mode==="combat"?`<span class="pill red">БОЙ</span>`:""}
+   ${pl.sneak?`<span class="pill" style="color:#8C9484">СКРЫТНОСТЬ${pl.sneakOk?" ✓":""}</span>`:""}`;
+  $("#btns").innerHTML=`
+   <button class="sq" id="bpip">ПБ</button>
+   <button class="sq ${pl.sneak?"on":""}" id="bsneak">🕶</button>
+   ${W.mode==="combat"&&!trait("fast")?`<button class="sq ${CB.aim!=="none"?"on":""}" id="baim">◎</button>`:""}
+   ${W.mode==="combat"?`<button class="sq" id="bstim">💉${P.inv.stim||0}</button>`:""}`;
+  $("#bpip").onclick=()=>{if(W.mode==="combat"){toast("Не в бою!");return}openPip()};
+  $("#bsneak").onclick=toggleSneak;
+  const ba=$("#baim");if(ba)ba.onclick=()=>{const ks=Object.keys(AIM);CB.aim=ks[(ks.indexOf(CB.aim)+1)%ks.length];
+    toast("Прицел: "+AIM[CB.aim].n);updateHUD()};
+  const bs=$("#bstim");if(bs)bs.onclick=()=>{
+    if(CB.ap<2){toast("Нужно 2 ОД");return}
+    if(!(P.inv.stim>0)){toast("Стимпаков нет");return}
+    P.inv.stim--;CB.ap-=2;const h=rnd(15,25);P.hp=Math.min(maxHP(),P.hp+h);
+    float(pl.x,pl.y,"+"+h,"#14FE17");updateHUD();drawCombatBar()};
+  drawCombatBar();
+}
+function drawCombatBar(){
+  const el=$("#combatbar");
+  if(W.mode!=="combat"){el.style.display="none";return}
+  el.style.display="flex";
+  el.innerHTML=`<div class="apbar">${Array.from({length:maxAP()},(_,i)=>`<i class="${i<CB.ap?"on":""}"></i>`).join("")}</div>
+   <div id="clog">${(CB.log||[]).slice(-2).map((l,i,a)=>i===a.length-1?`<b>${l}</b>`:l).join("<br>")}</div>
+   <button id="bend" style="min-height:42px;padding:6px 12px">КОНЕЦ ХОДА ▸</button>`;
+  $("#bend").onclick=endPlayerTurn;
+}
+function clog(t){CB.log=CB.log||[];CB.log.push(t);drawCombatBar()}
+function toggleSneak(){
+  pl.sneak=!pl.sneak;pl.sneakOk=false;
+  if(pl.sneak){const r=roll("sneak",30);pl.sneakOk=r.ok;
+    toast(r.ok?"Вы растворяетесь в тенях.":"Вы крадётесь... шумновато.")}
+  updateHUD();
+}
+
+/* ---------- ввод ---------- */
+cv.addEventListener("click",ev=>{
+  if(W.mode!=="explore"&&W.mode!=="combat")return;
+  const r=cv.getBoundingClientRect();
+  const sx=(ev.clientX-r.left)*DPR,sy=(ev.clientY-r.top)*DPR;
+  const wx=(sx-VW/2)/W.zoom+W.cam.x,wy=(sy-VH/2)/W.zoom+W.cam.y;
+  const fx=(wx/(TW/2)+ (wy)/(TH/2))/2,fy=((wy)/(TH/2)-wx/(TW/2))/2;
+  const tx=Math.round(fx-0.5+0.5)|0,ty=Math.round(fy-0.5+0.5)|0; // округление к клетке
+  tapTile(Math.floor(fx),Math.floor(fy));
+});
+function tapTile(tx,ty){
+  if(CB.busy||pl.path.length)return;
+  const ent=W.ents.find(e=>!e.dead&&e.x===tx&&e.y===ty);
+  if(W.mode==="combat"){combatTap(tx,ty,ent&&!ent.exit?ent:null);return}
+  if(ent&&!ent.exit){
+    const d=cheb(pl.x,pl.y,tx,ty);
+    if(d<=1.5)interact(ent);
+    else{const nf=nearestFree(tx,ty,pl.x,pl.y);
+      if(nf){const p=bfsPath(pl.x,pl.y,nf[0],nf[1]);
+        if(p){pl.path=p;pl.pend=ent.id}else toast("Не подойти")}}
+    return;
+  }
+  const ex=exitAt(tx,ty);
+  const p=bfsPath(pl.x,pl.y,tx,ty);
+  if(p){pl.path=p;pl.pend=null}
+}
+function interact(e){
+  if(e.hostile&&!e.dead){enterCombat();return}
+  if(e.dlg){openDialog(e.dlg,e)}
+  else if(e.use){openDialog(e.use,e)}
+}
+/* ---------- переходы и агро ---------- */
+function arrived(){
+  const ex=exitAt(pl.x,pl.y);
+  if(ex){const msg=ex.need&&ex.need();
+    if(msg){toast(msg)}
+    else if(ex.to==="worldmap")showWorldMap();
+    else loadMap(ex.to,ex.tx,ex.ty);
+    return}
+  if(pl.pend){const e=W.ents.find(x=>x.id===pl.pend);pl.pend=null;
+    if(e&&!e.dead&&cheb(pl.x,pl.y,e.x,e.y)<=1.5)interact(e)}
+}
+function checkAggro(){
+  if(W.mode!=="explore")return;
+  for(const e of W.ents){
+    if(!e.hostile||e.dead||!e.aggro)continue;
+    const d=cheb(pl.x,pl.y,e.x,e.y);
+    const r=pl.sneak&&pl.sneakOk?1:e.aggro;
+    if(d<=r){
+      if(e.id==="officer"){
+        if(F().officer_calm)continue;
+        if(!F().officer_met){F().officer_met=1;pl.path=[];openDialog("officer_confront",e);return}}
+      enterCombat();return}
   }
 }
-function karma(n){P.karma+=n; toast(n>0?`Карма +${n}`:`Карма ${n}`)}
-function journal(t){P.journal.unshift(t)}
-function save(){try{localStorage.setItem("cascadia",JSON.stringify({P,node:CUR}))}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem("cascadia"));if(d&&d.P){P=d.P;go(d.node||"arroyo_1");return true}}catch(e){}return false}
 
-/* ---------- проверки навыков ---------- */
-// Диалоги: пороговые (видно порог). Мир: бросок d100 с видимым шансом.
-function roll(id,diff){ // diff: сложность 0..150
-  const ch=clamp(skill(id)-diff+30,5,95);
-  return {ok:rnd(1,100)<=ch,ch};
+/* =====================================================================
+   БОЙ (на карте мира)
+   ===================================================================== */
+function foes(){return W.ents.filter(e=>e.hostile&&!e.dead)}
+function enterCombat(){
+  if(W.mode==="combat")return;
+  W.mode="combat";CB.ap=maxAP();CB.aim="none";CB.log=["Бой! Ваш ход."];pl.path=[];
+  updateHUD();
 }
-
-/* ---------- тосты и лог ---------- */
-let toastT=null;
-function toast(t){
-  let el=$("#toast");
-  if(!el){el=document.createElement("div");el.id="toast";
-    el.style.cssText="position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:60;background:var(--neutral-raised);border:1px solid var(--tertiary);color:var(--tertiary);padding:8px 14px;border-radius:2px;font-size:.9rem;max-width:90vw";
-    document.body.appendChild(el);}
-  el.textContent=t;el.style.display="block";
-  clearTimeout(toastT);toastT=setTimeout(()=>el.style.display="none",2600);
+function weapon(){return WEAPONS[P.weapon]||WEAPONS.fists}
+function atkCost(){return Math.max(1,weapon().ap+(CB.aim!=="none"?1:0)-(trait("fast")?1:0))}
+function hitChance(f){
+  const w=weapon(),d=cheb(pl.x,pl.y,f.x,f.y);
+  if(d>w.rng)return 0;
+  return clamp(skill(w.skill)-25-(w.rng>1?(d-1)*4:0)+AIM[CB.aim].mod,5,95);
 }
-function log2(t){toast(t)}
-
-/* =========================================================
-   ЭКРАНЫ
-   ========================================================= */
-function header(){
-  return `<div id="hud">
-    <span class="pill">${esc(P.name)} · ур.${P.level}</span>
-    <span class="pill ${P.hp<maxHP()*.3?'red':''}">ОЗ ${P.hp}/${maxHP()}</span>
-    <span class="pill amber">₵ ${P.caps}</span>
-    <span class="pill sec">карма ${P.karma>0?"+":""}${P.karma}</span>
-  </div>`;
+function combatTap(tx,ty,ent){
+  if(ent&&ent.hostile&&!ent.dead){ // атака
+    const w=weapon(),cost=atkCost(),d=cheb(pl.x,pl.y,ent.x,ent.y);
+    if(d>w.rng){clog("Слишком далеко для: "+w.n);return}
+    if(CB.ap<cost){clog(`Нужно ${cost} ОД`);return}
+    CB.ap-=cost;
+    const ch=hitChance(ent);
+    if(rnd(1,100)<=ch){
+      let dm=rnd(w.dmg[0],w.dmg[1]);
+      if(w.rng===1)dm+=Math.max(0,stat("S")-5);
+      if(trait("fin"))dm=Math.round(dm*0.7);
+      if(trait("blood"))dm=Math.round(dm*1.05);
+      const crit=rnd(1,100)<=stat("L")+(trait("fin")?10:0);
+      dm=Math.round(dm*AIM[CB.aim].dm*(crit?2:1));
+      ent.hp-=dm;float(ent.x,ent.y,(crit?"КРИТ −":"−")+dm,"#FF4633");
+      clog(`${crit?"КРИТ! ":""}${ent.name}: −${dm}`);
+      if(AIM[CB.aim].trip&&ent.hp>0&&rnd(1,100)<=40){ent.trip=true;clog(ent.name+" сбит с ног!")}
+      if(ent.hp<=0)killEnt(ent);
+      if(!foes().length){winCombat();return}
+    }else{float(ent.x,ent.y,"промах","#8C9484");clog(`Промах (${ch}%)`)}
+    updateHUD();
+  } else { // движение
+    const p=bfsPath(pl.x,pl.y,tx,ty);
+    if(!p)return;
+    if(p.length>CB.ap){clog("Не хватает ОД");return}
+    CB.ap-=p.length;pl.path=p;updateHUD();
+  }
 }
-
-/* ---- меню ---- */
-function screenMenu(){
-  $("#pipbtn").style.display="none";
-  app.innerHTML=`<div class="screen center">
-    <div class="sec small">ROBCO INDUSTRIES (TM) TERMLINK · PIP-BOY 2000 MK II</div>
-    <h1>FALLOUT<br><span class="amber">CASCADIA RISING</span></h1>
-    <div class="sec">Каскадия, 2253 год. Пепельная зима.<br>Играбельный вертикальный срез.</div>
-    <div class="stack" style="width:min(360px,90%)">
-      <button class="primary" id="bnew">▸ НОВАЯ ИГРА</button>
-      <button id="bcont">▸ ПРОДОЛЖИТЬ</button>
-    </div>
-    <div class="sec small blink">■ WAR NEVER CHANGES ■</div>
-  </div>`;
-  $("#bnew").onclick=()=>{P=freshPlayer();screenName();};
-  $("#bcont").onclick=()=>{ if(!load()) toast("Сохранение не найдено"); };
+function killEnt(e){
+  e.dead=true;P.flags["dead_"+W.mapId+"_"+e.id]=1;
+  if(e.xp)giveXP(e.xp,e.name);
+  if(e.onDeath)e.onDeath();
 }
-
-/* ---- создание: имя + SPECIAL ---- */
-let cPts=5;
-function screenName(){
-  cPts=5;
-  const lines=SPECIAL.map(([k,n])=>`
-    <div class="statline">
-      <span class="nm">${k} · ${n}</span>
-      <button class="bump" data-k="${k}" data-d="-1">−</button>
-      <span class="val" id="v${k}">5</span>
-      <button class="bump" data-k="${k}" data-d="1">+</button>
-    </div>`).join("");
-  app.innerHTML=`<div class="screen scroll">
-    <h2>СОЗДАНИЕ ПЕРСОНАЖА <span class="dim">1/3 — S.P.E.C.I.A.L.</span></h2>
-    <div class="panel stack">
-      <div class="row"><span>Имя:</span><input id="nm" value="${esc(P.name)}" maxlength="16"
-        style="flex:1;background:var(--neutral);border:1px solid var(--primary-dim);color:var(--primary);font-family:var(--mono);padding:10px;border-radius:2px;font-size:1rem"></div>
-      ${lines}
-      <div>Свободных очков: <span class="amber" id="pts">5</span></div>
-      <div class="sec small" id="hint">Интеллект даёт очки навыков, Ловкость — очки действия, Харизма — цены и болтовню, Удача — криты.</div>
-      <button class="primary" id="next">ДАЛЕЕ ▸ ТРЕЙТЫ</button>
-    </div></div>`;
-  document.querySelectorAll(".bump").forEach(b=>b.onclick=()=>{
-    const k=b.dataset.k,d=+b.dataset.d,v=P.sp[k];
-    if(d>0&&(cPts<=0||v>=10))return; if(d<0&&v<=1)return;
-    P.sp[k]=v+d;cPts-=d;$("#v"+k).textContent=P.sp[k];$("#pts").textContent=cPts;
-  });
-  $("#next").onclick=()=>{P.name=$("#nm").value.trim()||"Наследник";screenTraits();};
+function winCombat(){
+  W.mode="explore";CB.busy=false;
+  const loot=rnd(15,40);P.caps+=loot;toast(`Победа! Добыча: ${loot}₵`);
+  if(F().officer_dead&&W.mapId==="station"&&!F().slice_end){/* терминал открыт */}
+  updateHUD();save();
 }
-
-/* ---- создание: трейты ---- */
-function screenTraits(){
-  app.innerHTML=`<div class="screen scroll">
-    <h2>СОЗДАНИЕ <span class="dim">2/3 — ТРЕЙТЫ (до 2)</span></h2>
-    <div class="stack">
-      ${TRAITS.map(t=>`<button data-t="${t.id}"><b>${t.n}</b><br><span class="sec small">${t.d}</span></button>`).join("")}
-      <button class="primary" id="next">ДАЛЕЕ ▸ НАВЫКИ</button>
-    </div></div>`;
-  const refresh=()=>document.querySelectorAll("[data-t]").forEach(b=>{
-    b.style.background=P.traits.includes(b.dataset.t)?"var(--primary-dim)":"";
-    b.style.color=P.traits.includes(b.dataset.t)?"var(--neutral)":"";
-  });
-  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{
-    const id=b.dataset.t;
-    if(P.traits.includes(id))P.traits=P.traits.filter(x=>x!==id);
-    else if(P.traits.length<2)P.traits.push(id);
-    refresh();
-  });
-  $("#next").onclick=screenTags;
-}
-
-/* ---- создание: tag-навыки ---- */
-function screenTags(){
-  app.innerHTML=`<div class="screen scroll">
-    <h2>СОЗДАНИЕ <span class="dim">3/3 — TAG-НАВЫКИ (ровно 3)</span></h2>
-    <div class="sec small" style="margin-bottom:8px">Отмеченный навык: +20% сразу и растёт вдвое быстрее.</div>
-    <div class="stack">
-      ${SKILLS.map(s=>`<button data-s="${s.id}" style="display:flex;justify-content:space-between">
-        <span>${s.n}</span><span class="amber" id="sv-${s.id}"></span></button>`).join("")}
-      <button class="primary" id="go">В ПУСТОШЬ ▸</button>
-    </div></div>`;
-  const refresh=()=>{SKILLS.forEach(s=>{
-    $("#sv-"+s.id).textContent=skill(s.id)+"%";
-    const b=document.querySelector(`[data-s="${s.id}"]`);
-    b.style.background=P.tags.includes(s.id)?"var(--primary-dim)":"";
-    b.style.color=P.tags.includes(s.id)?"var(--neutral)":"";
-  })};
-  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{
-    const id=b.dataset.s;
-    if(P.tags.includes(id))P.tags=P.tags.filter(x=>x!==id);
-    else if(P.tags.length<3)P.tags.push(id);
-    refresh();
-  });
-  refresh();
-  $("#go").onclick=()=>{
-    if(P.tags.length!==3){toast("Выберите ровно 3 навыка");return}
-    P.hp=maxHP(); journal("Совет старейшин отправил меня к метеостанции «Горный Страж». Сначала — пройти Храм Ветров.");
-    $("#pipbtn").style.display="block";
-    go("arroyo_1");
+function endPlayerTurn(){
+  if(CB.busy||pl.path.length)return;
+  CB.busy=true;
+  const list=foes();let i=0;
+  const step=()=>{
+    if(P.hp<=0){death();return}
+    if(i>=list.length){CB.busy=false;CB.ap=maxAP();clog("Ваш ход.");updateHUD();return}
+    const f=list[i++];
+    if(f.dead){step();return}
+    if(f.trip){f.trip=false;float(f.x,f.y,"встаёт","#8C9484");setTimeout(step,320);return}
+    let ap=f.ap;
+    const act=()=>{
+      if(P.hp<=0){death();return}
+      // атака если в радиусе
+      if(ap>=3&&cheb(f.x,f.y,pl.x,pl.y)<=f.rng){
+        ap-=3;
+        const ch=clamp(55-stat("A")*2,15,80);
+        if(rnd(1,100)<=ch){const dm=rnd(f.dmg[0],f.dmg[1]);P.hp-=dm;
+          float(pl.x,pl.y,"−"+dm,"#FF4633");clog(`${f.name}: −${dm} ОЗ`);updateHUD();
+          if(P.hp<=0){death();return}}
+        else{float(pl.x,pl.y,"мимо","#8C9484");clog(f.name+" промахивается")}
+        setTimeout(act,330);return;
+      }
+      // движение к игроку
+      if(ap>0&&cheb(f.x,f.y,pl.x,pl.y)>f.rng){
+        const nf=nearestFree(pl.x,pl.y,f.x,f.y);
+        const p=nf?bfsPath(f.x,f.y,nf[0],nf[1]):null;
+        if(p&&p.length){const[sx2,sy2]=p[0];f.x=sx2;f.y=sy2;ap--;setTimeout(act,150);return}
+      }
+      setTimeout(step,200);
+    };
+    act();
   };
+  step();
+}
+function death(){
+  W.mode="dead";CB.busy=false;
+  showOvl(`<div class="stack" style="margin:auto;text-align:center;max-width:440px">
+    <h1 class="red">ВЫ ПОГИБЛИ</h1>
+    <div class="sec">Пустошь Каскадии равнодушно приняла ещё одного наследника. Война никогда не меняется.</div>
+    <button class="primary" id="bload">▸ ЗАГРУЗИТЬ АВТОСЕЙВ</button></div>`);
+  $("#bload").onclick=()=>{hideOvl();
+    if(!load()){P=freshPlayer();scrName()}else{P.hp=Math.max(1,Math.floor(maxHP()/2));updateHUD()}};
 }
 
-/* =========================================================
-   ДИАЛОГОВО-СЦЕНОВЫЙ ДВИЖОК
-   опция: {t:текст, req:{sk|st, v}, hide:bool, do:fn, goto:id}
-   ========================================================= */
-let CUR="arroyo_1";
+/* =====================================================================
+   РЕНДЕР
+   ===================================================================== */
+function groundColor(g,x,y){
+  const n=((x*73856093)^(y*19349663))>>>0,v=(n%13)-6;
+  const base={ash:[58,62,56],dirt:[86,72,52],path:[104,92,64],cave:[44,48,46],
+    wall:[30,34,32],water:[36,52,66]}[g]||[58,62,56];
+  return `rgb(${base[0]+v},${base[1]+v},${base[2]+v})`;
+}
+function drawDiamond(x,y,color,raise){
+  const X=isoX(x,y),Y=isoY(x,y)-(raise||0);
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.moveTo(X,Y);ctx.lineTo(X+TW/2,Y+TH/2);ctx.lineTo(X,Y+TH);ctx.lineTo(X-TW/2,Y+TH/2);
+  ctx.closePath();ctx.fill();
+}
+function draw(ts){
+  W.t=ts||0;
+  // движение игрока по пути
+  if(pl.path.length){
+    const [tx,ty]=pl.path[0],sp=(W.mode==="combat"?7:4.6)/60;
+    const dx=tx-pl.px,dy=ty-pl.py,d=Math.hypot(dx,dy);
+    if(d<sp){pl.px=tx;pl.py=ty;pl.x=tx;pl.y=ty;pl.path.shift();
+      if(!pl.path.length){arrived()}
+      checkAggro();
+    } else {pl.px+=dx/d*sp;pl.py+=dy/d*sp}
+  }
+  // камера
+  const cx=isoX(pl.px,pl.py),cy=isoY(pl.px,pl.py);
+  W.cam.x+=(cx-W.cam.x)*0.12;W.cam.y+=(cy-W.cam.y)*0.12;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle=(MAPS[W.mapId]||{}).amb||"#0B0F0A";
+  ctx.fillRect(0,0,VW,VH);
+  if(W.mode==="menu"||W.mode==="wmap"||!W.grid){requestAnimationFrame(draw);return}
+  ctx.setTransform(W.zoom,0,0,W.zoom,VW/2-W.cam.x*W.zoom,VH/2-W.cam.y*W.zoom);
+  // земля
+  for(let y=0;y<W.h;y++)for(let x=0;x<W.w;x++){
+    const t=tileAt(x,y);
+    if(t.g==="wall"){ // приподнятая скала
+      drawDiamond(x,y,groundColor("wall",x,y),14);
+      ctx.fillStyle="rgba(0,0,0,.35)";
+      const X=isoX(x,y),Y=isoY(x,y);
+      ctx.fillRect(X-TW/2,Y+TH/2-14,TW,14);
+      continue;
+    }
+    drawDiamond(x,y,groundColor(t.g,x,y));
+  }
+  // подсветка пути (в бою)
+  if(W.mode==="combat"){for(const[x,y]of pl.path){drawDiamond(x,y,"rgba(20,254,23,.15)")}}
+  // объекты + сущности, отсортированы по глубине
+  const items=[];
+  for(let y=0;y<W.h;y++)for(let x=0;x<W.w;x++){
+    const t=tileAt(x,y);
+    if(t.p)items.push({d:x+y,draw:()=>drawProp(t.p,x,y)});
+  }
+  for(const e of W.ents){
+    if(e.dead)continue;
+    if(e.exit){items.push({d:e.x+e.y,draw:()=>drawExit(e)});continue}
+    items.push({d:e.x+e.y,draw:()=>drawEnt(e)});
+  }
+  items.push({d:pl.px+pl.py,draw:drawPlayer});
+  items.sort((a,b)=>a.d-b.d).forEach(i=>i.draw());
+  // всплывающий урон
+  for(const f of W.floats){
+    f.t+=1/60;
+    const X=isoX(f.x,f.y),Y=isoY(f.x,f.y)-30-f.t*30;
+    ctx.font="bold 13px monospace";ctx.textAlign="center";
+    ctx.fillStyle=f.color;ctx.globalAlpha=clamp(1.3-f.t,0,1);
+    ctx.fillText(f.txt,X,Y);ctx.globalAlpha=1;
+  }
+  W.floats=W.floats.filter(f=>f.t<1.3);
+  requestAnimationFrame(draw);
+}
+function drawShadow(X,Y){ctx.fillStyle="rgba(0,0,0,.35)";
+  ctx.beginPath();ctx.ellipse(X,Y+TH/2+2,12,5,0,0,Math.PI*2);ctx.fill()}
+function drawProp(p,x,y){
+  const X=isoX(x,y),Y=isoY(x,y);
+  if(p==="fire"){
+    const fl=1+Math.sin(W.t/90+x)*0.2;
+    const g=ctx.createRadialGradient(X,Y+TH/2,2,X,Y+TH/2,26*fl);
+    g.addColorStop(0,"rgba(255,182,66,.8)");g.addColorStop(1,"rgba(255,80,30,0)");
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(X,Y+TH/2,26*fl,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#FFB642";ctx.fillRect(X-3,Y+TH/2-8*fl,6,8*fl);
+    return;
+  }
+  const s=SPR[p==="tree"?"tree":p];if(!s)return;
+  ctx.drawImage(s,X-s.width/2,Y+TH/2-s.height+4);
+}
+function drawExit(e){
+  const X=isoX(e.x,e.y),Y=isoY(e.x,e.y);
+  const pul=0.5+Math.sin(W.t/300)*0.25;
+  drawDiamond(e.x,e.y,`rgba(20,254,23,${0.12+pul*0.15})`);
+  ctx.strokeStyle="rgba(20,254,23,.8)";ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.moveTo(X,Y+4);ctx.lineTo(X+TW/2-6,Y+TH/2);ctx.lineTo(X,Y+TH-4);ctx.lineTo(X-TW/2+6,Y+TH/2);ctx.closePath();ctx.stroke();
+  ctx.font="10px monospace";ctx.textAlign="center";ctx.fillStyle="rgba(20,254,23,.9)";
+  ctx.fillText(e.label,X,Y-4);
+}
+function drawEnt(e){
+  const X=isoX(e.x,e.y),Y=isoY(e.x,e.y);
+  drawShadow(X,Y);
+  const s=SPR[e.spr];if(s)ctx.drawImage(s,X-s.width/2,Y+TH/2-s.height);
+  // полоса ОЗ у врагов
+  if(e.hostile&&e.hp<e.maxhp){
+    ctx.fillStyle="#20301c";ctx.fillRect(X-14,Y+TH/2-s.height-8,28,4);
+    ctx.fillStyle="#FF4633";ctx.fillRect(X-14,Y+TH/2-s.height-8,28*clamp(e.hp/e.maxhp,0,1),4);
+  }
+  // имя при близости
+  if(cheb(pl.x,pl.y,e.x,e.y)<=2&&!e.hostile){
+    ctx.font="10px monospace";ctx.textAlign="center";ctx.fillStyle="rgba(255,182,66,.9)";
+    ctx.fillText(e.name,X,Y+TH/2-s.height-4);
+  }
+}
+function drawPlayer(){
+  const X=isoX(pl.px,pl.py),Y=isoY(pl.px,pl.py);
+  drawShadow(X,Y);
+  const bob=pl.path.length?Math.sin(W.t/70)*2:0;
+  ctx.globalAlpha=pl.sneak?0.55:1;
+  const s=SPR.hero;ctx.drawImage(s,X-s.width/2,Y+TH/2-s.height+bob);
+  ctx.globalAlpha=1;
+}
+
+/* =====================================================================
+   ДИАЛОГИ (панель поверх мира)
+   ===================================================================== */
+let DENT=null; // сущность, с которой говорим
 function opt(o){
-  let tag="";
   if(o.req){
     const ok=o.req.sk?skill(o.req.sk)>=o.req.v:stat(o.req.st)>=o.req.v;
     const nm=o.req.sk?SKILLS.find(s=>s.id===o.req.sk).n:SPECIAL.find(s=>s[0]===o.req.st)[1];
-    tag=`<span class="tag ${ok?"":"off"}">[${nm} ${o.req.v}${o.req.sk?"%":""}]</span> `;
-    o._ok=ok;
-  } else o._ok=true;
-  return {...o,label:tag+esc(o.t)};
+    o._ok=ok;o.label=`<span class="tag ${ok?"":"off"}">[${nm} ${o.req.v}${o.req.sk?"%":""}]</span> ${esc(o.t)}`;
+  } else {o._ok=true;o.label=esc(o.t)}
+  return o;
 }
-function go(id){
-  CUR=id; save();
-  $("#pipbtn").style.display="block";
-  const n=NODES[id]; if(!n){toast("nod?"+id);return}
+function openDialog(id,ent){
+  DENT=ent||DENT;
+  const n=DLG[id];if(!n)return;
   if(n.enter)n.enter();
+  const box=$("#dlg");box.classList.add("show");
   const opts=(n.opts||[]).filter(o=>!o.hide||!o.hide()).map(opt);
-  app.innerHTML=`${header()}<div class="screen">
-    <div class="narr scroll">
-      ${n.who?`<div class="speaker">▸ ${n.who}</div>`:""}
-      <div class="text">${n.text()}</div>
-    </div>
-    <div class="stack" id="opts"></div>
-  </div>`;
-  const box=$("#opts");
-  opts.forEach(o=>{
-    const b=document.createElement("button");
-    b.innerHTML=o.label; b.disabled=!o._ok;
-    b.onclick=()=>{if(o.do)o.do(); if(o.goto)go(o.goto);};
-    box.appendChild(b);
-  });
+  box.innerHTML=`<div class="who">▸ ${n.who||((DENT&&DENT.name)||"")}</div>
+    <div class="txt">${n.text()}</div><div class="opts"></div>`;
+  const ob=box.querySelector(".opts");
+  opts.forEach(o=>{const b=document.createElement("button");
+    b.innerHTML=o.label;b.disabled=!o._ok;
+    b.onclick=()=>{if(o.do)o.do();if(o.goto)openDialog(o.goto);else if(!o.stay&&!o.do_open)closeDialog()};
+    ob.appendChild(b)});
+  save();
 }
-const F=()=>P.flags;
+function closeDialog(){$("#dlg").classList.remove("show");DENT=null;updateHUD()}
 
-/* =========================================================
-   КОНТЕНТ ВЕРТИКАЛЬНОГО СРЕЗА
-   ========================================================= */
-const NODES={
-/* ---- НЬЮ-АРРОЙО ---- */
-arroyo_1:{who:"СТАРЕЙШИНА МОРА, НЬЮ-АРРОЙО",
- text:()=>`Пепел падает третий год, ${esc(P.name)}. Поля мертвы, караваны не приходят. Совет решил: кровь Избранного снова пойдёт на север.\n\nНа горе Худ стоит метеостанция Старого мира — «Горный Страж». Её машины видят бури раньше, чем те рождаются. Узнай, откуда приходит пепельная зима.\n\nНо сначала — обычай. Храм Ветров ждёт тебя, как ждал твоего деда.`,
+const DLG={
+arroyo_1:{who:"СТАРЕЙШИНА МОРА",
+ text:()=>`Пепел падает третий год, ${esc(P.name)}. Совет решил: кровь Избранного снова пойдёт на север — к метеостанции «Горный Страж» на горе Худ. Узнай, откуда приходит пепельная зима.\n\nНо сначала — обычай: Храм Ветров (выход на юго-западе деревни). Пройди его, как прошёл твой дед.`,
  opts:[
-  {t:"Я готов(а). Веди к Храму.",goto:"temple_1"},
+  {t:"Я готов(а).",},
   {t:"Расскажи о деде.",goto:"arroyo_lore"},
-  {t:"«Обычай»? Мой дед спас всех вас. Пропусти без испытания.",req:{sk:"speech",v:50},goto:"temple_skip",
-   do:()=>{giveXP(120,"убедили старейшину");}},
+  {t:"Мой дед спас всех вас. Пропусти без испытания.",req:{sk:"speech",v:50},
+   do:()=>{if(!F().temple){F().temple="слово";giveXP(120,"убедили старейшину");
+     journal("Старейшина пропустила без испытания. Путь в Пустошь открыт (выход на юго-востоке).")}}},
  ]},
 arroyo_lore:{who:"СТАРЕЙШИНА МОРА",
- text:()=>`Твой дед — Избранный. Он вышел из деревни с копьём и флягой, а вернулся на летающей машине, с людьми Убежища 13 и ГЭККом. Он утопил нефтяную платформу Анклава в океане.\n\nМы думали, Анклав мёртв. Но пепел... пепел пахнет их машинами. Иди, дитя.`,
- opts:[{t:"К Храму Ветров.",goto:"temple_1"}]},
-temple_skip:{who:"СТАРЕЙШИНА МОРА",
- text:()=>`Старейшина долго смотрит на тебя, потом усмехается: «Та же дерзость. Хорошо. Копьё деда — у ворот. Иди на юго-восток, к Кламат-Фоллс.»\n\n<span class="amber">Испытание пройдено словом — как когда-то Выходец «прошёл» Мастера.</span>`,
- opts:[{t:"Выйти на карту мира.",goto:"world_1"}]},
-
-/* ---- ХРАМ ВЕТРОВ: 3 пути ---- */
-temple_1:{who:"ХРАМ ВЕТРОВ",
- text:()=>`Каменный зев в скале дышит сквозняком. Внутри — тьма, шорох чешуи и, в конце коридора, дверь Старого мира с механическим замком и ржавым терминалом.\n\nВ полумраке блестят глаза золотого гекко.`,
+ text:()=>`Твой дед — Избранный. Он ушёл с копьём и флягой, а вернулся с людьми Убежища 13 и ГЭККом, утопив платформу Анклава в океане.\n\nМы думали, Анклав мёртв. Но пепел пахнет их машинами.`,
+ opts:[{t:"[Уйти]"}]},
+villager:{text:()=>`«Поля мертвы, охота скудна. Если Горный Страж молчит — к весне нам не дожить.»`,
+ opts:[{t:"[Уйти]"}]},
+villager2:{text:()=>`«Говорят, на перевале засели Пепельники — культ пепельной зимы. Технику ненавидят. Осторожнее с пип-боем, путник.»`,
+ opts:[{t:"[Уйти]"}]},
+temple_term:{who:"ДРЕВНИЙ ТЕРМИНАЛ",
+ text:()=>`Ламповый терминал мигает янтарным курсором. Реле дальней решётки отзывается по шине. Судя по схеме, можно открыть проход у восточной стены.`,
  opts:[
-  {t:"Атаковать гекко. Путь воина.",do:()=>startCombat("temple",()=>{giveXP(150,"Храм пройден боем");F().temple="fight";go("temple_done")}),},
-  {t:"Прокрасться мимо зверя в тенях.",req:{sk:"sneak",v:40},goto:"temple_done",
-   do:()=>{giveXP(150,"Храм пройден тенью");F().temple="sneak"}},
-  {t:"Взломать механический замок боковой калитки.",goto:"temple_lock"},
-  {t:"Оживить терминал и открыть дверь через реле.",req:{sk:"sci",v:40},goto:"temple_done",
-   do:()=>{giveXP(180,"Храм пройден наукой");F().temple="sci"}},
+  {t:"Перезапустить реле и открыть решётку.",req:{sk:"sci",v:40},
+   do:()=>{const g=W.ents.find(e=>e.id==="tgate");if(g)g.dead=true;
+     P.flags["dead_temple_tgate"]=1;
+     if(!F().temple){F().temple="наука";giveXP(180,"Храм: путь науки")}
+     toast("Решётка со скрежетом уходит в стену.")}},
+  {t:"[Отойти]"},
  ]},
-temple_lock:{who:"БОКОВАЯ КАЛИТКА",
+temple_gate:{who:"РЖАВАЯ РЕШЁТКА",
  text:()=>{const ch=clamp(skill("lock")-25+30,5,95);
-  return `Замок древний, но масло в нём ещё живо. Шанс взлома: <span class="amber">${ch}%</span>. Провал разбудит гекко.`},
+  return `Замок древний, но масло живо. Шанс взлома: <span class="amber">${ch}%</span>. Провал наделает шума.`},
  opts:[
   {t:"Вскрыть замок.",do:()=>{const r=roll("lock",25);
-    if(r.ok){giveXP(150,"Храм пройден отмычкой");F().temple="lock";go("temple_done")}
-    else {toast("Отмычка звякнула! Гекко проснулся.");startCombat("temple",()=>{giveXP(120,"бой после провала");go("temple_done")});}}},
-  {t:"Отойти.",goto:"temple_1"},
+    if(r.ok){const g=W.ents.find(e=>e.id==="tgate");if(g)g.dead=true;
+      P.flags["dead_temple_tgate"]=1;
+      if(!F().temple){F().temple="взлом";giveXP(150,"Храм: путь отмычки")}
+      toast("Щелчок. Решётка открыта.")}
+    else{toast("Сорвалось! Лязг разбудил гекко.");
+      const g=W.ents.find(e=>e.id==="gecko");if(g&&!g.dead){g.aggro=99;enterCombat()}}}},
+  {t:"[Отойти]"},
  ]},
-temple_done:{who:"ХРАМ ВЕТРОВ · ВЫХОД",
- text:()=>`Дверь поддаётся, и ветер бьёт в лицо: за храмом открывается серый простор Каскадии. Пепел лежит на мёртвых елях, как грязный снег.\n\nСтарейшина ждала снаружи: «Испытание пройдено. Копьё деда — твоё. Ступай к Кламат-Фоллс, оттуда караванщики возят на север.»`,
- opts:[{t:"Выйти на карту мира.",goto:"world_1",do:()=>journal("Храм Ветров пройден. Путь: Кламат-Фоллс → Ржавый Рынок → метеостанция.")}]},
-
-/* ---- КАРТА МИРА / СЛУЧАЙНАЯ ВСТРЕЧА ---- */
-world_1:{who:"КАРТА МИРА",
- text:()=>`<span class="sec">НЬЮ-АРРОЙО ▸ КЛАМАТ-ФОЛЛС ▸ РЖАВЫЙ РЫНОК</span>\n\nДва дня пути по пепельным холмам. На перевале дорогу перегораживают трое: серые балахоны, копья из арматуры, на лицах — зола. Пепельники. Культ считает, что гора гневается на технику.\n\n«Стой, техноноситель! Пип-бой на твоей руке гневит Гору. Сдай его — или накормишь пепел.»`,
+cult_talk:{who:"ЖРЕЦ ПЕПЛА",
+ text:()=>`«Стой, техноноситель! Машина на твоей руке гневит Гору. Сдай её — или накормишь пепел.»`,
  opts:[
   {t:"«Гора гневается не на технику, а на тех, кто ею травит небо. Я иду это остановить.»",req:{sk:"speech",v:50},
-   do:()=>{giveXP(200,"культисты пропустили");karma(25);journal("Пепельники пропустили — слова о «травящих небо» их смутили. Они что-то знают.")},goto:"world_2"},
-  {t:"Показать пустые ладони и медленно отойти в туман.",req:{sk:"sneak",v:45},
-   do:()=>giveXP(150,"ушли тенью"),goto:"world_2"},
+   do:()=>{F().pass=1;giveXP(200,"культисты пропустили");karma(25);
+     W.ents.forEach(e=>{if(e.id.startsWith("cult"))e.hostile=0});
+     journal("Пепельники пропустили. Слова о «травящих небо» их смутили — они что-то знают.")}},
   {t:"Моя — не отдавать! Моя — бить!",req:{st:"S",v:7},
-   do:()=>startCombat("ashers",()=>{giveXP(180,"перевал очищен");go("world_2")})},
-  {t:"К бою.",do:()=>startCombat("ashers",()=>{giveXP(180,"перевал очищен");go("world_2")})},
+   do:()=>{startPassFight()}},
+  {t:"К бою.",do:()=>{startPassFight()}},
  ]},
-world_2:{who:"РЖАВЫЙ РЫНОК (ЮДЖИН)",
- text:()=>`Город построен в скелете довоенного университета: аудитории стали лавками, стадион — загоном для браминов. Пахнет жареным гекко и озоном сварки.\n\nНа площади: <span class="amber">лавка Юны</span>, <span class="amber">агент НКР</span> у доски объявлений и <span class="amber">склад караванщиков</span>, вокруг которого спорит толпа.`,
+slate:{who:"СЛЕЙТ",
+ text:()=>`Охранник склада храпит у костра, обняв бутыль. На поясе блестит ключ-карта.`,
  opts:[
-  {t:"Лавка Юны (торговля).",goto:"shop"},
-  {t:"Подойти к агенту НКР.",goto:"ncr_1"},
-  {t:"Что там со складом?",goto:"depot_1"},
-  {t:"Караван на метеостанцию (сюжет — финал среза).",hide:()=>!F().depot_done,goto:"finale"},
+  {t:"Вытащить ключ-карту.",req:{sk:"steal",v:45},
+   do:()=>{F().key=1;giveXP(120,"ключ добыт тихо");toast("Ключ-карта у вас.")}},
+  {t:"Растолкать: «Склад! Живо!»",do:()=>toast("Слейт мычит: «Ключ... кому-то отдал... или потерял...» — и храпит дальше.") ,stay:1},
+  {t:"[Отойти]"},
  ]},
-
-/* ---- ТОРГОВЛЯ ---- */
+depot_1:{who:"КАРАВАНЩИК БАРТ",
+ text:()=>F().depot_done?
+  `«Караван готов, дружище! Метеостанция так метеостанция. Скажи — и быки пойдут.» (выход на юго-востоке)`:
+  `«Электрозамок склада закоротило пепельной грозой! Внутри — зимний запас всего города, ключ — у Слейта, а Слейт пьян. К ночи толпа снесёт ворота. Помоги — не обижу!»\n\n<span class="sec small">Склад — южнее, у костра спит Слейт.</span>`,
+ opts:[
+  {t:"Убедить толпу разобрать склад по описи, под расписки.",req:{sk:"speech",v:65},
+   hide:()=>!!F().depot_done,do:()=>{karma(20);depotWin("толпа организована")}},
+  {t:"Займусь замком.",hide:()=>!!F().depot_done},
+ ]},
+depot_door:{who:"СКЛАД: ЭЛЕКТРОЗАМОК",
+ text:()=>F().depot_done?`Ворота открыты. Город спасён.`:
+  `Панель оплавлена, реле щёлкает вхолостую. Варианты — по навыкам.`,
+ opts:[
+  {t:"Приложить ключ-карту Слейта.",hide:()=>!F().key||!!F().depot_done,do:()=>depotWin("ключ-карта")},
+  {t:"Вскрыть замок напрямую.",req:{sk:"lock",v:50},hide:()=>!!F().depot_done,do:()=>depotWin("замок вскрыт")},
+  {t:"Перепаять сгоревшее реле.",req:{sk:"rep",v:45},hide:()=>!!F().depot_done,do:()=>depotWin("реле перепаяно")},
+  {t:"Импульс с пип-боя: перезагрузить контроллер.",req:{sk:"sci",v:55},hide:()=>!!F().depot_done,do:()=>depotWin("контроллер перезагружен")},
+  {t:"[Отойти]"},
+ ]},
 shop:{who:"ЮНА, ТОРГОВКА",
- text:()=>{
-  const d=Math.round(100*(1.25-0.0025*clamp(skill("barter"),0,100)))/100;
-  F()._disc=d;
-  return `«Пепел всё дорожает, путник. Но для тебя...» — она щурится, оценивая. <span class="sec small">(Модификатор цен от Бартера: ×${d})</span>\n\nСтимпак — ${Math.round(25*d)}₵ · Пистолет 9мм — ${Math.round(120*d)}₵ · Винтовка — ${Math.round(260*d)}₵`},
+ text:()=>{const d=Math.round(100*(1.25-0.0025*clamp(skill("barter"),0,100)))/100;F()._disc=d;
+  return `«Пепел всё дорожает, путник. Но для тебя...» <span class="sec small">(цены ×${d} от Бартера)</span>\n\nСтимпак — ${Math.round(25*d)}₵ · Пистолет 9мм — ${Math.round(120*d)}₵ · Винтовка — ${Math.round(260*d)}₵`},
  opts:[
-  {t:"Купить стимпак.",do:()=>buy("stim",25)},
-  {t:"Купить пистолет 9мм.",do:()=>buy("pistol",120)},
-  {t:"Купить охотничью винтовку.",do:()=>buy("rifle",260)},
+  {t:"Купить стимпак.",do:()=>buy("stim",25),stay:1},
+  {t:"Купить пистолет 9мм.",do:()=>buy("pistol",120),stay:1},
+  {t:"Купить охотничью винтовку.",do:()=>buy("rifle",260),stay:1},
   {t:"Срезать кошель с пояса Юны.",req:{sk:"steal",v:35},do:()=>{
     const r=roll("steal",40);
-    if(r.ok){P.caps+=35;karma(-15);giveXP(100,"ловкие пальцы");toast("+35 крышек. Юна ничего не заметила.");}
-    else {P.caps=Math.max(0,P.caps-20);karma(-15);toast("Пойман! Охрана вытрясла 20 крышек «за беспокойство».");}
-    go("shop");}},
-  {t:"Уйти.",goto:"world_2"},
+    if(r.ok){P.caps+=35;karma(-15);giveXP(100,"ловкие пальцы")}
+    else{P.caps=Math.max(0,P.caps-20);karma(-15);toast("Пойман! Охрана вытрясла 20 крышек.")}},stay:1},
+  {t:"[Уйти]"},
  ]},
-
-/* ---- НКР ---- */
 ncr_1:{who:"АГЕНТ ВЕГА, НКР",
- text:()=>`Женщина в пыльнике с двухголовым медведем на плече изучает тебя поверх планшета.\n\n«Республика платит за сведения о вертибердах. Да, племенной, — летающие машины. Их видели над Каскадами. Если ты с юга — может, что видел?»`,
+ text:()=>`Женщина в пыльнике с двухголовым медведем на плече изучает тебя поверх планшета.\n\n«Республика платит за сведения о вертибердах — летающих машинах Анклава. Их видели над Каскадами. Ты с юга — что видел?»`,
  opts:[
-  {t:"«Сначала — что НКР забыла в Каскадии?»",goto:"ncr_2"},
-  {t:"Рассказать про следы Анклава у метеостанции (что знаете).",do:()=>{P.caps+=50;giveXP(100,"сведения проданы");journal("Агент НКР Вега заплатила 50₵ за сведения. НКР тоже ищет Анклав.");toast("+50 крышек")},goto:"ncr_2"},
-  {t:"Соврать: «Ничего не видел». Пип-бой деда пискнул некстати.",req:{sk:"speech",v:40},
-   do:()=>giveXP(80,"ложь сошла с рук"),goto:"ncr_2"},
+  {t:"«Что НКР забыла в Каскадии?»",goto:"ncr_2"},
+  {t:"Рассказать о пепельных бурях и слухах об Анклаве.",hide:()=>!!F().ncr_paid,
+   do:()=>{F().ncr_paid=1;P.caps+=50;giveXP(100,"сведения проданы");
+     journal("Агент Вега заплатила 50₵. НКР тоже ищет Анклав.")}},
  ]},
 ncr_2:{who:"АГЕНТ ВЕГА, НКР",
- text:()=>`«Что забыла? Дороги, налоги и закон, племенной. Через пять лет тут будет территория Республики — с судом и школой. Или пепелище, если то, что жжёт небо, не остановят.\n\nЕсли доберёшься до „Горного Стража“ — Республика умеет быть благодарной.»`,
- opts:[{t:"Вернуться на площадь.",goto:"world_2"}]},
-
-/* ---- КВЕСТ: СКЛАД (4 пути) ---- */
-depot_1:{who:"СКЛАД КАРАВАНЩИКОВ",
- text:()=>`Караванщик Барт рвёт на себе бороду: электрозамок склада закоротило пепельной грозой, внутри — весь зимний запас города, а единственный ключ-карта — у охранника Слейта, который «ушёл в запой к Пепельникам».\n\nТолпа глухо ропщет. Если склад не открыть к ночи — начнётся грабёж.`,
+ text:()=>`«Дороги, налоги и закон, племенной. Через пять лет тут будет территория Республики. Или пепелище — если то, что жжёт небо, не остановят. Доберёшься до „Горного Стража“ — Республика умеет быть благодарной.»`,
+ opts:[{t:"[Уйти]"}]},
+officer_confront:{who:"ОФИЦЕР АНКЛАВА",
+ text:()=>`Из-за купола выходит фигура в чёрной силовой броне, визор горит зелёным.\n\n«Стоять! Гражданское лицо на объекте Анклава. По протоколу я обязан открыть огонь... но эвакуация ушла без меня, и мне, честно говоря, надоело.»`,
  opts:[
-  {t:"Вскрыть электрозамок напрямую.",req:{sk:"lock",v:50},do:()=>depotWin("замок вскрыт")},
-  {t:"Перебрать сгоревшее реле замка.",req:{sk:"rep",v:45},do:()=>depotWin("реле перепаяно")},
-  {t:"Пустить импульс с пип-боя и перезагрузить контроллер.",req:{sk:"sci",v:55},do:()=>depotWin("контроллер перезагружен")},
-  {t:"Найти Слейта и вытащить ключ из его кармана.",req:{sk:"steal",v:45},do:()=>depotWin("ключ добыт тихо")},
-  {t:"Убедить толпу разобрать склад по описи, под расписки.",req:{sk:"speech",v:65},do:()=>{karma(20);depotWin("толпа организована")}},
-  {t:"Уйти. Не моё дело.",goto:"world_2",do:()=>{karma(-10)}},
+  {t:"«Тогда не стреляй. Расскажи, что вы делаете с небом, — и разойдёмся.»",req:{sk:"speech",v:70},
+   do:()=>endSlice("talk")},
+  {t:"Моя — говорить — с железным человеком!",req:{st:"I",v:1},hide:()=>stat("I")>3,
+   do:()=>{giveXP(100,"офицер сбит с толку");toast("Офицер опешил: «...Протокол не описывает ЭТО». Он отвернулся.");F().officer_calm=1}},
+  {t:"К бою.",do:()=>enterCombat()},
  ]},
-depot_done:{who:"СКЛАД КАРАВАНЩИКОВ",
- text:()=>`Ворота со стоном уходят вверх. Толпа выдыхает. Барт суёт тебе в ладонь мешочек крышек: «С меня караван, куда скажешь. Хоть к самому „Горному Стражу“ — всё равно моим быкам туда».\n\n<span class="amber">Открыт путь к финалу среза: караван на метеостанцию.</span>`,
- opts:[{t:"На площадь.",goto:"world_2"}]},
-
-/* ---- ФИНАЛ СРЕЗА ---- */
-finale:{who:"МЕТЕОСТАНЦИЯ «ГОРНЫЙ СТРАЖ»",
- text:()=>`Три дня караванного пути — и вот она: антенна над ледником, купол, вросший в скалу. Терминал станции жив. На экране — карта сейсмических всплесков за год.\n\nЭпицентры выстроены идеальной дугой в сорока километрах от вулкана. Природа не чертит дуг.\n\nЗа спиной, за облаками, нарастает знакомый по рассказам деда звук. Ротор. Вертиберд.\n\n<span class="amber">На посадочной площадке остался офицер Анклава — отставший от эвакуации.</span>`,
+finale:{who:"ТЕРМИНАЛ СТАНЦИИ",
+ text:()=>`Карта сейсмических всплесков за год: эпицентры выстроены идеальной дугой в сорока километрах от вулкана. Природа не чертит дуг.\n\n${F().officer_dead?"Площадка пуста — офицер мёртв. Данные можно забрать спокойно.":"За спиной, на посадочной площадке — офицер Анклава. Пока он вас не заметил."}`,
  opts:[
-  {t:"Скачать данные и уйти незамеченным.",req:{sk:"sneak",v:55},do:()=>endSlice("stealth")},
-  {t:"Встретить офицера боем.",do:()=>startCombat("enclave",()=>endSlice("fight"))},
-  {t:"Выйти с поднятыми руками и заговорить.",req:{sk:"speech",v:70},do:()=>endSlice("talk")},
+  {t:"Скачать данные и уйти незамеченным.",req:{sk:"sneak",v:55},hide:()=>!!F().officer_dead||!!F().officer_calm,
+   do:()=>endSlice("stealth")},
+  {t:"Забрать данные.",hide:()=>!F().officer_dead&&!F().officer_calm,do:()=>endSlice(F().officer_dead?"fight":"talk")},
+  {t:"Выйти к офицеру с поднятыми руками и заговорить.",req:{sk:"speech",v:70},hide:()=>!!F().officer_dead,
+   do:()=>endSlice("talk")},
+  {t:"[Отойти]"},
  ]},
 };
 function buy(item,base){
@@ -480,244 +948,187 @@ function buy(item,base){
   if(P.caps<price){toast("Не хватает крышек");return}
   P.caps-=price;P.inv[item]=(P.inv[item]||0)+1;
   if(WEAPONS[item])P.weapon=item;
-  toast(`Куплено: ${WEAPONS[item]?WEAPONS[item].n:"Стимпак"} (−${price}₵)`);go("shop");
+  toast(`Куплено: ${WEAPONS[item]?WEAPONS[item].n:"Стимпак"} (−${price}₵)`);updateHUD();
 }
 function depotWin(how){
-  F().depot_done=true;P.caps+=60;giveXP(300,"склад открыт: "+how);
-  journal(`Склад Ржавого Рынка открыт (${how}). Барт даёт караван до метеостанции.`);
-  go("depot_done");
+  F().depot_done=1;P.caps+=60;giveXP(300,"склад открыт: "+how);
+  journal(`Склад Ржавого Рынка открыт (${how}). Барт даёт караван до метеостанции (карта мира).`);
+  const d=W.ents.find(e=>e.id==="ddoor");if(d)d.dead=true;
+  P.flags["dead_market_ddoor"]=1;
+  closeDialog();updateHUD();
+}
+function startPassFight(){
+  closeDialog();
+  W.ents.forEach(e=>{if(e.id.startsWith("cult")){e.hostile=1;e.aggro=99}});
+  F().pass=1; // после боя тропа свободна
+  enterCombat();
 }
 function endSlice(path){
+  closeDialog();
+  F().slice_end=1;
   const t={stealth:"Вы ушли тенью — Анклав даже не узнает, что данные утекли.",
-    fight:"Офицер Анклава остался лежать у купола. Плазменный пистолет — ваш трофей.",
-    talk:"Офицер опустил оружие. «Мерсер была права...» — сказал он и назвал имя: капитан Ада Мерсер, дезертир. Ниточка."}[path];
-  if(path==="fight")P.inv.energy=1;
+    fight:"Офицер Анклава остался лежать у купола. Данные у вас.",
+    talk:"Офицер опустил оружие. «Мерсер была права...» — и назвал имя: капитан Ада Мерсер, дезертир. Ниточка."}[path];
   giveXP(500,"Акт I завершён");save();
-  app.innerHTML=`${header()}<div class="screen center scroll">
+  showOvl(`<div class="stack scroll" style="margin:auto;max-width:560px;text-align:center">
     <h2 class="amber">КОНЕЦ ВЕРТИКАЛЬНОГО СРЕЗА</h2>
-    <div class="panel" style="max-width:560px;text-align:left">
-      <p>${t}</p><hr>
-      <p>Данные «Горного Стража» у вас: пепельную зиму делают машины. Проект «Чинук» существует. Впереди — Портленд-Разлом, Братство Стали и Комбинат Сиэтла.</p><hr>
-      <p class="sec small">Итог: уровень ${P.level} · ${P.xp} XP · карма ${P.karma} · ${P.caps}₵<br>
-      Путь через Храм: ${F().temple||"словом"} · Склад: ${F().depot_done?"открыт":"брошен"}</p>
+    <div class="panel" style="text-align:left">
+      <p>${t}</p><hr style="border:0;border-top:1px solid var(--primary-dim);margin:8px 0">
+      <p>Пепельную зиму делают машины. Проект «Чинук» существует. Впереди — Портленд-Разлом, Братство Стали и Комбинат Сиэтла.</p>
+      <hr style="border:0;border-top:1px solid var(--primary-dim);margin:8px 0">
+      <p class="sec small">Итог: уровень ${P.level} · ${P.xp} XP · карма ${P.karma} · ${P.caps}₵ · Храм: ${F().temple||"—"} · Склад: ${F().depot_done?"открыт":"брошен"} · Перевал: ${F().pass?"пройден":"—"}</p>
     </div>
     <div class="sec blink">■ ПРОДОЛЖЕНИЕ СЛЕДУЕТ ■</div>
-    <button class="inline" onclick="location.reload()">В ГЛАВНОЕ МЕНЮ</button>
-  </div>`;
+    <button class="primary" onclick="location.reload()">В ГЛАВНОЕ МЕНЮ</button></div>`);
 }
 
-/* =========================================================
-   БОЙ: пошаговый, сетка, ОД, прицельные зоны
-   ========================================================= */
-const ENCOUNTERS={
- temple:{w:8,h:5,obst:[[3,1],[3,3],[5,2]],foes:[{n:"Золотой гекко",icon:"🦎",hp:22,dmg:[2,6],ap:6,rng:1,x:6,y:2}]},
- ashers:{w:9,h:6,obst:[[4,2],[4,3],[2,4]],foes:[
-   {n:"Пепельник",icon:"🥷",hp:20,dmg:[3,6],ap:6,rng:1,x:7,y:1},
-   {n:"Пепельник",icon:"🥷",hp:20,dmg:[3,6],ap:6,rng:1,x:7,y:4},
-   {n:"Жрец пепла",icon:"🧙",hp:28,dmg:[4,8],ap:5,rng:5,x:8,y:2}]},
- enclave:{w:9,h:6,obst:[[4,1],[4,4],[6,3]],foes:[
-   {n:"Офицер Анклава",icon:"🤖",hp:45,dmg:[6,11],ap:7,rng:6,x:7,y:2}]},
-};
-let C=null; // combat state
-function startCombat(encId,onWin){
-  const e=ENCOUNTERS[encId];
-  C={w:e.w,h:e.h,obst:new Set(e.obst.map(o=>o.join(","))),
-     foes:e.foes.map(f=>({...f})),px:0,py:Math.floor(e.h/2),
-     ap:maxAP(),aim:"none",onWin,turn:"player",log:["Бой начался. Ваш ход."]};
-  renderCombat();
-}
-const key=(x,y)=>x+","+y;
-function foeAt(x,y){return C.foes.find(f=>f.hp>0&&f.x===x&&f.y===y)}
-function passable(x,y){return x>=0&&y>=0&&x<C.w&&y<C.h&&!C.obst.has(key(x,y))&&!foeAt(x,y)}
-function bfs(sx,sy){ // карта дистанций от точки
-  const d={};d[key(sx,sy)]=0;const q=[[sx,sy]];
-  while(q.length){const [x,y]=q.shift();
-    for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){
-      const nx=x+dx,ny=y+dy;
-      if(passable(nx,ny)&&d[key(nx,ny)]===undefined){d[key(nx,ny)]=d[key(x,y)]+1;q.push([nx,ny])}}}
-  return d;
-}
-function dist(x1,y1,x2,y2){return Math.max(Math.abs(x1-x2),Math.abs(y1-y2))}
-function weapon(){return WEAPONS[P.weapon]||WEAPONS.fists}
-function atkCost(){let c=weapon().ap+(C.aim!=="none"?1:0);if(trait("fast"))c--;return Math.max(1,c)}
-function hitChance(f){
-  const w=weapon();const d=dist(C.px,C.py,f.x,f.y);
-  if(d>w.rng)return 0;
-  let ch=skill(w.skill)-25-(w.rng>1?(d-1)*4:0)+AIM[C.aim].mod;
-  return clamp(ch,5,95);
-}
-function clog(t,me){C.log.push(t);renderCombat()}
-function renderCombat(){
-  const w=weapon();
-  const cellPx=Math.min(52,Math.floor((Math.min(window.innerWidth,1060)-40)/C.w)-3);
-  let cells="";
-  for(let y=0;y<C.h;y++)for(let x=0;x<C.w;x++){
-    const f=foeAt(x,y),me=(x===C.px&&y===C.py);
-    let cls="cell"+(C.obst.has(key(x,y))?" obst":"")+(me?" me":"");
-    let inner=C.obst.has(key(x,y))?"▓":"";
-    if(me)inner="🧍";
-    if(f){inner=f.icon+`<span class="pct">${hitChance(f)}%</span><span class="hp"><i style="width:${100*f.hp/ENCOUNTERS_hp(f)}%"></i></span>`;}
-    cells+=`<div class="${cls}" data-x="${x}" data-y="${y}" style="width:${cellPx}px;height:${cellPx}px">${inner}</div>`;
-  }
-  app.innerHTML=`${header()}<div class="screen">
-    <div class="row small"><span class="red">◈ БОЙ</span><span class="grow"></span>
-      <span>ОД:</span><span class="apbar">${Array.from({length:maxAP()},(_,i)=>`<i class="${i<C.ap?"on":""}"></i>`).join("")}</span></div>
-    <div id="grid" style="grid-template-columns:repeat(${C.w},${cellPx}px)">${cells}</div>
-    <div id="log">${C.log.slice(-4).map((l,i,a)=>`<div class="${i===a.length-1?"last":""}">${l}</div>`).join("")}</div>
-    <div class="row" style="margin-top:6px">
-      <button class="inline" id="baim" ${trait("fast")?"disabled":""}>◎ ${AIM[C.aim].n}</button>
-      <button class="inline" id="bstim">💉 ${P.inv.stim||0}</button>
-      <button class="inline grow" id="bend">КОНЕЦ ХОДА ▸</button>
+/* =====================================================================
+   КАРТА МИРА (переходы между локациями)
+   ===================================================================== */
+function showWorldMap(){
+  W.mode="wmap";W.mapId="worldmap";save();
+  const nodes=[
+   {id:"arroyo",n:"НЬЮ-АРРОЙО",x:22,y:78,tx:11,ty:10},
+   {id:"pass",n:"ПЕРЕВАЛ",x:44,y:52,tx:3,ty:2},
+   {id:"market",n:"РЖАВЫЙ РЫНОК",x:66,y:34,tx:18,ty:9,need:()=>F().pass?null:"Путь на север — через Перевал"},
+   {id:"station",n:"ГОРНЫЙ СТРАЖ",x:84,y:14,tx:2,ty:7,need:()=>F().depot_done?null:"Нужен караван Барта (квест «Склад» в Ржавом Рынке)"},
+  ];
+  showOvl(`<div class="stack" style="margin:auto;width:min(560px,96%)">
+    <h2>КАРТА КАСКАДИИ <span class="dim small">· выберите точку</span></h2>
+    <div class="panel" style="position:relative;height:300px" id="wm">
+      <svg viewBox="0 0 100 100" style="position:absolute;inset:14px;width:calc(100% - 28px);height:calc(100% - 28px)">
+        <polyline points="22,78 44,52 66,34 84,14" fill="none" stroke="#0FA511" stroke-dasharray="2 2" stroke-width=".8"/>
+        ${nodes.map(n=>`<circle cx="${n.x}" cy="${n.y}" r="2.2" fill="#14FE17"/>`).join("")}
+      </svg>
+      ${nodes.map((n,i)=>`<button data-n="${i}" style="position:absolute;left:${n.x*0.92}%;top:${n.y*0.86}%;width:auto;min-height:34px;padding:4px 8px;font-size:.75rem;transform:translate(-30%,10px)">${n.n}</button>`).join("")}
     </div>
-    <div class="sec small">${w.n} · урон ${w.dmg[0]}–${w.dmg[1]} · ${atkCost()} ОД · дальн. ${w.rng} · тап по врагу — атака, по клетке — шаг (1 ОД)</div>
-  </div>`;
-  $("#baim").onclick=()=>{const ks=Object.keys(AIM);C.aim=ks[(ks.indexOf(C.aim)+1)%ks.length];renderCombat()};
-  $("#bstim").onclick=()=>{if(C.ap<2){clog("Нужно 2 ОД.");return}
-    if(!(P.inv.stim>0)){clog("Стимпаков нет.");return}
-    P.inv.stim--;C.ap-=2;const h=rnd(15,25);P.hp=Math.min(maxHP(),P.hp+h);clog(`Стимпак: +${h} ОЗ.`)};
-  $("#bend").onclick=enemyTurn;
-  document.querySelectorAll("#grid .cell").forEach(c=>c.onclick=()=>tapCell(+c.dataset.x,+c.dataset.y));
-}
-function ENCOUNTERS_hp(f){ // maxhp врага по имени из шаблонов
-  for(const e of Object.values(ENCOUNTERS)){const t=e.foes.find(t=>t.n===f.n);if(t)return t.hp}
-  return f.hp;
-}
-function tapCell(x,y){
-  if(C.turn!=="player")return;
-  const f=foeAt(x,y);
-  if(f){ // атака
-    const w=weapon(),cost=atkCost(),d=dist(C.px,C.py,f.x,f.y);
-    if(d>w.rng){clog("Слишком далеко для "+w.n+".");return}
-    if(C.ap<cost){clog(`Нужно ${cost} ОД.`);return}
-    C.ap-=cost;
-    const ch=hitChance(f);
-    if(rnd(1,100)<=ch){
-      let dm=rnd(w.dmg[0],w.dmg[1]);
-      if(w.rng===1)dm+=Math.max(0,stat("S")-5);
-      if(trait("fin"))dm=Math.round(dm*0.7);
-      if(trait("blood"))dm=Math.round(dm*1.05);
-      let crit=rnd(1,100)<=stat("L")+(trait("fin")?10:0);
-      dm=Math.round(dm*AIM[C.aim].dm*(crit?2:1));
-      f.hp-=dm;
-      let msg=`${crit?"КРИТ! ":""}${f.n}: −${dm} ОЗ (${AIM[C.aim].n.toLowerCase()}).`;
-      if(AIM[C.aim].trip&&f.hp>0&&rnd(1,100)<=40){f.trip=true;msg+=" Сбит с ног — пропустит ход!";}
-      if(f.hp<=0)msg=`${f.n} повержен${trait("blood")?" — весьма красочно":""}.`;
-      clog(msg);
-      if(!C.foes.some(x=>x.hp>0)){winCombat();return}
-    } else clog(`Промах по цели «${f.n}» (шанс был ${ch}%).`);
-    renderCombat();
-  } else { // движение
-    const d=bfs(C.px,C.py)[key(x,y)];
-    if(d===undefined){return}
-    if(d>C.ap){clog("Не хватает ОД.");return}
-    C.ap-=d;C.px=x;C.py=y;renderCombat();
-  }
-}
-function enemyTurn(){
-  C.turn="enemy";
-  const alive=C.foes.filter(f=>f.hp>0);
-  let i=0;
-  const step=()=>{
-    if(i>=alive.length){C.turn="player";C.ap=maxAP();clog("Ваш ход.");return}
-    const f=alive[i++];
-    if(f.trip){f.trip=false;clog(`${f.n} поднимается с земли.`);setTimeout(step,350);return}
-    let ap=f.ap;
-    // движение к игроку
-    while(ap>0&&dist(f.x,f.y,C.px,C.py)>f.rng){
-      const dmap=bfs(C.px,C.py); // дистанции от игрока
-      let best=null,bd=dmap[key(f.x,f.y)]??99;
-      for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){
-        const nx=f.x+dx,ny=f.y+dy;
-        if(!passable(nx,ny)||(nx===C.px&&ny===C.py))continue;
-        const nd=dmap[key(nx,ny)];
-        if(nd!==undefined&&nd<bd){bd=nd;best=[nx,ny]}}
-      if(!best)break;
-      f.x=best[0];f.y=best[1];ap--;
-    }
-    // атака
-    while(ap>=3&&dist(f.x,f.y,C.px,C.py)<=f.rng){
-      ap-=3;
-      const ch=clamp(55-stat("A")*2,15,80);
-      if(rnd(1,100)<=ch){
-        const dm=rnd(f.dmg[0],f.dmg[1]);P.hp-=dm;clog(`${f.n} попадает: −${dm} ОЗ.`);
-        if(P.hp<=0){death();return}
-      } else clog(`${f.n} промахивается.`);
-    }
-    renderCombat();setTimeout(step,420);
-  };
-  step();
-}
-function winCombat(){
-  const loot=rnd(15,40);P.caps+=loot;
-  toast(`Победа! Добыча: ${loot}₵`);
-  const cb=C.onWin;C=null;cb&&cb();
-}
-function death(){
-  C=null;
-  app.innerHTML=`<div class="screen center">
-    <h1 class="red">ВЫ ПОГИБЛИ</h1>
-    <div class="sec" style="max-width:420px">Пустошь Каскадии равнодушно приняла ещё одного наследника. Пепел падает. Война никогда не меняется.</div>
-    <button class="inline" id="bload">▸ ЗАГРУЗИТЬ АВТОСЕЙВ</button>
-  </div>`;
-  $("#bload").onclick=()=>{if(!load()){P=freshPlayer();screenName()}else{P.hp=Math.max(P.hp,Math.floor(maxHP()/2))}};
+    <div class="sec small">Пепельные холмы Каскадии. Случайные встречи — часть пути.</div>
+  </div>`);
+  document.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{
+    const n=nodes[+b.dataset.n];
+    const msg=n.need&&n.need();
+    if(msg){toast(msg);return}
+    hideOvl();loadMap(n.id,n.tx,n.ty);
+  });
 }
 
-/* =========================================================
-   ПИП-БОЙ
-   ========================================================= */
+/* =====================================================================
+   ОВЕРЛЕИ: меню, создание персонажа, пип-бой
+   ===================================================================== */
+function showOvl(html){$("#ovlbox").innerHTML=html;$("#ovl").classList.add("show")}
+function hideOvl(){$("#ovl").classList.remove("show")}
+
+function scrMenu(){
+  W.mode="menu";
+  showOvl(`<div class="stack" style="margin:auto;text-align:center;width:min(380px,94%)">
+    <div class="sec small">ROBCO INDUSTRIES (TM) TERMLINK</div>
+    <h1>FALLOUT<br><span class="amber">CASCADIA RISING</span></h1>
+    <div class="sec">Каскадия, 2253. Пепельная зима.<br>Изометрический прототип v2.</div>
+    <button class="primary" id="bnew">▸ НОВАЯ ИГРА</button>
+    <button id="bcont">▸ ПРОДОЛЖИТЬ</button>
+    <div class="sec small blink">■ WAR NEVER CHANGES ■</div></div>`);
+  $("#bnew").onclick=()=>{P=freshPlayer();scrName()};
+  $("#bcont").onclick=()=>{if(!load())toast("Сохранение не найдено");else hideOvl()};
+}
+let cPts=5;
+function scrName(){
+  cPts=5;
+  showOvl(`<div class="scroll" style="margin:auto;width:min(560px,96%)">
+    <h2>СОЗДАНИЕ <span class="dim">1/3 · S.P.E.C.I.A.L.</span></h2>
+    <div class="panel stack">
+      <div class="row"><span>Имя:</span><input id="nm" value="${esc(P.name)}" maxlength="16"
+        style="flex:1;background:var(--neutral);border:1px solid var(--primary-dim);color:var(--primary);font-family:var(--mono);padding:10px;border-radius:2px;font-size:1rem"></div>
+      ${SPECIAL.map(([k,n])=>`<div class="statline"><span class="nm">${k} · ${n}</span>
+        <button class="bump" data-k="${k}" data-d="-1">−</button><span class="val" id="v${k}">5</span>
+        <button class="bump" data-k="${k}" data-d="1">+</button></div>`).join("")}
+      <div>Свободных очков: <span class="amber" id="pts">5</span></div>
+      <button class="primary" id="next">ДАЛЕЕ ▸ ТРЕЙТЫ</button>
+    </div></div>`);
+  document.querySelectorAll(".bump").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k,d=+b.dataset.d,v=P.sp[k];
+    if(d>0&&(cPts<=0||v>=10))return;if(d<0&&v<=1)return;
+    P.sp[k]=v+d;cPts-=d;$("#v"+k).textContent=P.sp[k];$("#pts").textContent=cPts});
+  $("#next").onclick=()=>{P.name=$("#nm").value.trim()||"Наследник";scrTraits()};
+}
+function scrTraits(){
+  showOvl(`<div class="scroll" style="margin:auto;width:min(560px,96%)">
+    <h2>СОЗДАНИЕ <span class="dim">2/3 · ТРЕЙТЫ (до 2)</span></h2><div class="stack">
+    ${TRAITS.map(t=>`<button data-t="${t.id}"><b>${t.n}</b><br><span class="sec small">${t.d}</span></button>`).join("")}
+    <button class="primary" id="next">ДАЛЕЕ ▸ НАВЫКИ</button></div></div>`);
+  const rf=()=>document.querySelectorAll("[data-t]").forEach(b=>{
+    const on=P.traits.includes(b.dataset.t);
+    b.style.background=on?"var(--primary-dim)":"";b.style.color=on?"var(--neutral)":""});
+  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.t;
+    if(P.traits.includes(id))P.traits=P.traits.filter(x=>x!==id);
+    else if(P.traits.length<2)P.traits.push(id);rf()});
+  rf();$("#next").onclick=scrTags;
+}
+function scrTags(){
+  showOvl(`<div class="scroll" style="margin:auto;width:min(560px,96%)">
+    <h2>СОЗДАНИЕ <span class="dim">3/3 · TAG-НАВЫКИ (ровно 3)</span></h2>
+    <div class="sec small" style="margin-bottom:8px">Tag: +20% сразу, рост ×2.</div><div class="stack">
+    ${SKILLS.map(s=>`<button data-s="${s.id}" style="display:flex;justify-content:space-between"><span>${s.n}</span><span class="amber" id="sv-${s.id}"></span></button>`).join("")}
+    <button class="primary" id="go2">В МИР ▸</button></div></div>`);
+  const rf=()=>SKILLS.forEach(s=>{$("#sv-"+s.id).textContent=skill(s.id)+"%";
+    const b=document.querySelector(`[data-s="${s.id}"]`),on=P.tags.includes(s.id);
+    b.style.background=on?"var(--primary-dim)":"";b.style.color=on?"var(--neutral)":""});
+  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.s;
+    if(P.tags.includes(id))P.tags=P.tags.filter(x=>x!==id);
+    else if(P.tags.length<3)P.tags.push(id);rf()});
+  rf();
+  $("#go2").onclick=()=>{
+    if(P.tags.length!==3){toast("Выберите ровно 3 навыка");return}
+    P.hp=maxHP();
+    journal("Совет отправил меня к метеостанции «Горный Страж». Сначала — Храм Ветров (юго-запад деревни).");
+    hideOvl();startWorld();loadMap("arroyo",9,6);
+  };
+}
+function startWorld(){updateHUD()}
+
+/* ---------- Пип-бой ---------- */
 let pipTab="stat";
-$("#pipbtn").onclick=()=>{if(C){toast("Не в бою!");return}renderPip()};
-function renderPip(){
+function openPip(){
   const tabs=[["stat","СТАТУС"],["skill","НАВЫКИ"],["inv","ВЕЩИ"],["quest","ЖУРНАЛ"]];
   let body="";
-  if(pipTab==="stat"){
-    body=SPECIAL.map(([k,n])=>`<div class="kv"><span>${n}</span><b>${stat(k)}</b></div>`).join("")+
+  if(pipTab==="stat")body=SPECIAL.map(([k,n])=>`<div class="kv"><span>${n}</span><b>${stat(k)}</b></div>`).join("")+
     `<div class="kv"><span>Очки здоровья</span><b>${P.hp}/${maxHP()}</b></div>
      <div class="kv"><span>Очки действия</span><b>${maxAP()}</b></div>
-     <div class="kv"><span>Шанс крита</span><b>${stat("L")+(trait("fin")?10:0)}%</b></div>
      <div class="kv"><span>Карма</span><b>${P.karma}</b></div>
      <div class="kv"><span>Трейты</span><b>${P.traits.map(t=>TRAITS.find(x=>x.id===t).n).join(", ")||"—"}</b></div>`;
-  }
-  if(pipTab==="skill"){
-    body=`<div class="small sec" style="margin-bottom:6px">Свободных очков: <b class="amber">${P.skpts}</b>${P.skpts?" — тап по навыку, чтобы вложить":""}</div>`+
-    SKILLS.map(s=>`<div class="kv" data-sk="${s.id}" style="cursor:pointer">
-      <span>${P.tags.includes(s.id)?"★ ":""}${s.n}</span><b>${skill(s.id)}%</b></div>`).join("");
-  }
+  if(pipTab==="skill")body=`<div class="small sec" style="margin-bottom:6px">Свободных очков: <b class="amber">${P.skpts}</b>${P.skpts?" — тап по навыку":""}</div>`+
+    SKILLS.map(s=>`<div class="kv" data-sk="${s.id}" style="cursor:pointer"><span>${P.tags.includes(s.id)?"★ ":""}${s.n}</span><b>${skill(s.id)}%</b></div>`).join("");
   if(pipTab==="inv"){
     const rows=[];
     for(const[id,n]of Object.entries(P.inv)){
       if(n<=0)continue;
       if(WEAPONS[id])rows.push(`<div class="kv" data-eq="${id}" style="cursor:pointer"><span>${WEAPONS[id].n} ${P.weapon===id?"◂ в руках":""}</span><b>×${n}</b></div>`);
       else if(id==="stim")rows.push(`<div class="kv" data-use="stim" style="cursor:pointer"><span>Стимпак (тап — лечиться)</span><b>×${n}</b></div>`);
-      else if(id==="energy")rows.push(`<div class="kv"><span>Плазменный пистолет (трофей; энергооружие — в следующем акте)</span><b>×${n}</b></div>`);
     }
-    rows.push(`<div class="kv"><span>Кулаки</span><b data-eq="fists" style="cursor:pointer">${P.weapon==="fists"?"◂ в руках":"взять"}</b></div>`);
-    body=rows.join("")||"<div class='sec'>Пусто</div>";
+    rows.push(`<div class="kv" data-eq="fists" style="cursor:pointer"><span>Кулаки ${P.weapon==="fists"?"◂ в руках":""}</span><b></b></div>`);
+    body=rows.join("");
   }
-  if(pipTab==="quest"){
-    body=P.journal.map(j=>`<div class="paper small" style="margin-bottom:8px">${esc(j)}</div>`).join("")||"<div class='sec'>Записей нет</div>";
-  }
-  app.innerHTML=`${header()}<div class="screen">
+  if(pipTab==="quest")body=P.journal.map(j=>`<div class="paper" style="margin-bottom:8px">${esc(j)}</div>`).join("")||"<div class='sec'>Записей нет</div>";
+  showOvl(`<div style="width:min(620px,96%);margin:auto;display:flex;flex-direction:column;min-height:0;max-height:100%">
     <div class="tabs">${tabs.map(([id,n])=>`<button class="${pipTab===id?"on":""} grow" data-tab="${id}">${n}</button>`).join("")}</div>
-    <div class="panel scroll grow" id="pipbody">${body}</div>
-    <button style="margin-top:8px" id="bback">◂ ЗАКРЫТЬ ПИП-БОЙ</button>
-  </div>`;
-  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{pipTab=b.dataset.tab;renderPip()});
+    <div class="panel scroll" style="flex:1;min-height:0">${body}</div>
+    <button style="margin-top:8px" id="bback">◂ ЗАКРЫТЬ ПИП-БОЙ</button></div>`);
+  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{pipTab=b.dataset.tab;openPip()});
   document.querySelectorAll("[data-sk]").forEach(b=>b.onclick=()=>{
     if(P.skpts<=0)return;
-    const id=b.dataset.sk;P.spent[id]=(P.spent[id]||0)+1;P.skpts--;
-    toast(`${SKILLS.find(s=>s.id===id).n}: ${skill(id)}%`);renderPip();
-  });
-  document.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>{P.weapon=b.dataset.eq;toast("В руках: "+WEAPONS[P.weapon].n);renderPip()});
+    const id=b.dataset.sk;P.spent[id]=(P.spent[id]||0)+1;P.skpts--;openPip()});
+  document.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>{P.weapon=b.dataset.eq;openPip()});
   document.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{
     if(P.hp>=maxHP()){toast("Здоровье полное");return}
-    P.inv.stim--;const h=rnd(15,25);P.hp=Math.min(maxHP(),P.hp+h);toast(`+${h} ОЗ`);renderPip();
-  });
-  $("#bback").onclick=()=>go(CUR);
+    P.inv.stim--;const h=rnd(15,25);P.hp=Math.min(maxHP(),P.hp+h);toast(`+${h} ОЗ`);openPip()});
+  $("#bback").onclick=()=>{hideOvl();updateHUD()};
 }
 
 /* ---------- старт ---------- */
-screenMenu();
+buildSprites();
+scrMenu();
+requestAnimationFrame(draw);
 </script>
 </body>
 </html>
