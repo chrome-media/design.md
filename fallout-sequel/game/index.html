@@ -132,19 +132,31 @@ const TRAITS=[
 const WEAPONS={
  fists:{n:"Кулаки",skill:"unarm",dmg:[1,4],ap:3,rng:1},
  spear:{n:"Копьё деда",skill:"melee",dmg:[3,7],ap:3,rng:1},
+ sawnoff:{n:"Обрез Старого мира",skill:"small",dmg:[7,12],ap:4,rng:4},
  pistol:{n:"Пистолет 9мм",skill:"small",dmg:[5,10],ap:4,rng:7},
  rifle:{n:"Охотничья винтовка",skill:"small",dmg:[8,14],ap:5,rng:9},
 };
+const PERKS=[
+ {id:"action",n:"Ускорение",d:"+1 очко действия в бою",req:()=>stat("A")>=5},
+ {id:"life",n:"Живучесть",d:"+10 к максимуму очков здоровья"},
+ {id:"crack",n:"Взломщик",d:"+15% к Взлому и Науке"},
+ {id:"orator",n:"Оратор",d:"+15% к Речи и Бартеру"},
+ {id:"sniper",n:"Меткий",d:"+10% к шансу критического удара"},
+ {id:"ghost",n:"Призрак",d:"+20% к Скрытности"},
+];
+const perk=id=>P.perks&&P.perks.includes(id);
 const AIM={none:{n:"Торс",mod:0,dm:1},head:{n:"Голова",mod:-40,dm:1.8},legs:{n:"Ноги",mod:-20,dm:1,trip:true}};
 const XP_LVL=[0,1000,3000,6000,10000];
 
 let P=null;
 function freshPlayer(){return{name:"Наследник",sp:{S:5,P:5,E:5,C:5,I:5,A:5,L:5},traits:[],tags:[],spent:{},
-  level:1,xp:0,skpts:0,karma:0,caps:40,inv:{stim:2,spear:1},weapon:"spear",flags:{},journal:[],hp:0}}
+  level:1,xp:0,skpts:0,karma:0,caps:40,inv:{stim:2,spear:1},weapon:"spear",flags:{},journal:[],hp:0,
+  perks:[],pendPerk:0}}
 const trait=id=>P.traits.includes(id);
 const stat=k=>P.sp[k]+(trait("gift")?1:0);
-const maxHP=()=>15+stat("S")+2*stat("E")+(P.level-1)*(3+Math.floor(stat("E")/2));
-const maxAP=()=>5+Math.floor(stat("A")/2);
+const maxHP=()=>15+stat("S")+2*stat("E")+(P.level-1)*(3+Math.floor(stat("E")/2))+(perk("life")?10:0);
+const maxAP=()=>5+Math.floor(stat("A")/2)+(perk("action")?1:0);
+const critChance=()=>stat("L")+(trait("fin")?10:0)+(perk("sniper")?10:0);
 function skill(id){
   const s=SKILLS.find(x=>x.id===id);
   const sp={S:stat("S"),P:stat("P"),E:stat("E"),C:stat("C"),I:stat("I"),A:stat("A"),L:stat("L")};
@@ -152,12 +164,17 @@ function skill(id){
   if(trait("gift"))v-=10;
   if(trait("good")){if(["speech","med","barter"].includes(id))v+=15;if(s.c)v-=10}
   if(trait("night")&&["sneak","sci"].includes(id))v+=10;
+  if(perk("crack")&&["lock","sci"].includes(id))v+=15;
+  if(perk("orator")&&["speech","barter"].includes(id))v+=15;
+  if(perk("ghost")&&id==="sneak")v+=20;
   return clamp(v,0,200);
 }
 function roll(id,diff){const ch=clamp(skill(id)-diff+30,5,95);return{ok:rnd(1,100)<=ch,ch}}
 function giveXP(n,why){P.xp+=n;toast(`+${n} XP${why?" — "+why:""}`);
-  while(P.level<XP_LVL.length&&P.xp>=XP_LVL[P.level]){P.level++;P.skpts+=5+2*stat("I");P.hp=maxHP();
-    toast(`УРОВЕНЬ ${P.level}! Очки навыков: +${5+2*stat("I")} (Пип-бой)`)}}
+  while(P.level<XP_LVL.length&&P.xp>=XP_LVL[P.level]){P.level++;P.skpts+=5+2*stat("I");
+    if(P.level%3===0)P.pendPerk=(P.pendPerk||0)+1;
+    P.hp=maxHP();
+    toast(`УРОВЕНЬ ${P.level}! Очки навыков: +${5+2*stat("I")}${P.pendPerk?" · доступен ПЕРК":""} (Пип-бой)`)}}
 function karma(n){P.karma+=n;toast(n>0?`Карма +${n}`:`Карма ${n}`)}
 function journal(t){P.journal.unshift(t)}
 const F=()=>P.flags;
@@ -318,9 +335,12 @@ arroyo:{name:"НЬЮ-АРРОЙО",amb:"#161a14",
  "#T....:,,,,:.......#",
  "####################"],
  ents:[
-  {id:"elder",spr:"elder",x:9,y:4,name:"Старейшина Мора",dlg:"arroyo_1"},
-  {id:"vill1",spr:"villager",x:5,y:5,name:"Житель",dlg:"villager"},
-  {id:"vill2",spr:"villager",x:13,y:5,name:"Житель",dlg:"villager2"},
+  {id:"elder",spr:"elder",x:9,y:4,name:"Старейшина Мора",dlg:"arroyo_1",
+   desc:"Дочь Избранного. Смотрит так, будто уже знает, чем кончится ваш путь."},
+  {id:"vill1",spr:"villager",x:5,y:5,name:"Житель",dlg:"villager",
+   desc:"Правое плечо висит неестественно — вывих.",desc2:"Свежий: вправить сможет любой, кто понимает в медицине."},
+  {id:"vill2",spr:"villager",x:13,y:5,name:"Житель",dlg:"villager2",
+   desc:"Худой, глаза голодные."},
   {id:"ex_temple",exit:1,x:6,y:11,to:"temple",tx:2,ty:2,label:"ХРАМ ВЕТРОВ"},
   {id:"ex_world",exit:1,x:11,y:11,to:"worldmap",label:"В ПУСТОШЬ",need:()=>F().temple?null:"Сначала пройдите Храм Ветров (выход слева)"},
  ]},
@@ -333,13 +353,17 @@ temple:{name:"ХРАМ ВЕТРОВ",amb:"#101410",cave:1,
  "###__#__#___#__#",
  "#__#___________#",
  "#_____##__#__###",
- "#__#______#____#",
+ "#_________#____#",
  "################"],
  ents:[
   {id:"gecko",spr:"gecko",x:8,y:5,name:"Золотой гекко",hostile:1,hp:22,dmg:[2,6],ap:6,rng:1,aggro:3,
    xp:150,onDeath:()=>{F().temple="бой";toast("Путь свободен.")}},
-  {id:"tterm",spr:"term",x:2,y:6,name:"Древний терминал",use:"temple_term"},
-  {id:"tgate",spr:"gate",x:14,y:2,name:"Ржавая решётка",use:"temple_gate",block:1},
+  {id:"tterm",spr:"term",x:2,y:6,name:"Древний терминал",use:"temple_term",
+   desc:"Ламповая машина Старого мира. Курсор мигает янтарным.",desc2:"По шине подключено реле — похоже, дальней решётки."},
+  {id:"tgate",spr:"gate",x:14,y:2,name:"Ржавая решётка",use:"temple_gate",block:1,
+   desc:"Прутья изъедены ржавчиной, замок древний.",desc2:"Петли прогнили сильнее замка — хороший механик снял бы её целиком."},
+  {id:"chest_t",spr:"crate",x:1,y:7,name:"Древний сундук",block:1,
+   desc:"Окованный сундук, замок цел.",desc2:"Судя по клейму — армейский запас Старого мира."},
   {id:"ex_out",exit:1,x:14,y:7,to:"arroyo",tx:6,ty:10,label:"ВЫХОД",
    need:()=>{if(F().temple)return null;
      if(pl.sneak&&pl.sneakOk){F().temple="тень";giveXP(150,"Храм: путь тени");return null}
@@ -361,7 +385,10 @@ pass:{name:"ПЕРЕВАЛ КАСКАДОВ",amb:"#14171a",
  ents:[
   {id:"cult1",spr:"cult",x:6,y:5,name:"Пепельник",hostile:0,dlg:"cult_talk",hp:20,dmg:[3,6],ap:6,rng:1,aggro:0,xp:90},
   {id:"cult2",spr:"cult",x:9,y:7,name:"Пепельник",hostile:0,dlg:"cult_talk",hp:20,dmg:[3,6],ap:6,rng:1,aggro:0,xp:90},
-  {id:"cultL",spr:"cult",x:8,y:6,name:"Жрец пепла",hostile:0,dlg:"cult_talk",hp:28,dmg:[4,8],ap:5,rng:5,aggro:0,xp:140},
+  {id:"cultL",spr:"cult",x:8,y:6,name:"Жрец пепла",hostile:0,dlg:"cult_talk",hp:28,dmg:[4,8],ap:5,rng:5,aggro:0,xp:140,
+   desc:"Зола на лице уложена узором. Не фанатик — идеолог."},
+  {id:"chest_p",spr:"crate",x:9,y:5,name:"Припасы культа",block:1,
+   desc:"Мешки и ящик у палатки.",desc2:"Культисты поглядывают на ящик — заметят, если брать в открытую."},
   {id:"ex_south",exit:1,x:2,y:1,to:"worldmap",label:"НАЗАД"},
   {id:"ex_north",exit:1,x:15,y:9,to:"market",tx:2,ty:7,label:"К РЖАВОМУ РЫНКУ",
    need:()=>{if(F().pass)return null;
@@ -383,11 +410,16 @@ market:{name:"РЖАВЫЙ РЫНОК",amb:"#181712",
  "#.,,,,,,,,,,,,,,,::,.#",
  "######################"],
  ents:[
-  {id:"yuna",spr:"yuna",x:6,y:2,name:"Юна, торговка",dlg:"shop"},
-  {id:"vega",spr:"vega",x:13,y:4,name:"Агент Вега (НКР)",dlg:"ncr_1"},
-  {id:"bart",spr:"bart",x:11,y:8,name:"Караванщик Барт",dlg:"depot_1"},
-  {id:"slate",spr:"slate",x:15,y:4,name:"Слейт (спит у костра)",dlg:"slate"},
-  {id:"ddoor",spr:"door",x:13,y:9,name:"Склад: электрозамок",use:"depot_door",block:1},
+  {id:"yuna",spr:"yuna",x:6,y:2,name:"Юна, торговка",dlg:"shop",
+   desc:"На поясе — тугой кошель.",desc2:"Кошель слева, а смотрит она за прилавком направо."},
+  {id:"vega",spr:"vega",x:13,y:4,name:"Агент Вега (НКР)",dlg:"ncr_1",
+   desc:"Пыльник, кобура, планшет. Служба.",desc2:"Кобура расстёгнута. У неё красть — себе дороже."},
+  {id:"bart",spr:"bart",x:11,y:8,name:"Караванщик Барт",dlg:"depot_1",
+   desc:"Борода в пепле, руки в мозолях."},
+  {id:"slate",spr:"slate",x:15,y:4,name:"Слейт (спит у костра)",dlg:"slate",
+   desc:"Храпит, обняв бутыль. На поясе блестит ключ-карта."},
+  {id:"ddoor",spr:"door",x:13,y:9,name:"Склад: электрозамок",use:"depot_door",block:1,
+   desc:"Панель оплавлена грозой, реле щёлкает вхолостую.",desc2:"Сам замок цел — сгорело только реле питания."},
   {id:"ex_south",exit:1,x:18,y:10,to:"worldmap",label:"В ПУСТОШЬ"},
  ]},
 station:{name:"МЕТЕОСТАНЦИЯ «ГОРНЫЙ СТРАЖ»",amb:"#10151a",
@@ -453,13 +485,15 @@ function bfsPath(sx,sy,tx,ty){
       prev[k]=x+","+y;Q.push([nx,ny])}}
   return null;
 }
-function nearestFree(tx,ty,sx,sy){ // ближайшая проходимая клетка рядом с целью
-  let best=null,bd=1e9;
+function bestPathAdj(sx,sy,tx,ty){ // кратчайший путь к любой клетке, смежной с целью
+  let best=null;
   for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]){
     const nx=tx+dx,ny=ty+dy;
+    if(nx===sx&&ny===sy)return [];
     if(!passableForPath(nx,ny))continue;
-    const d=Math.abs(nx-sx)+Math.abs(ny-sy);
-    if(d<bd){bd=d;best=[nx,ny]}}
+    const p=bfsPath(sx,sy,nx,ny);
+    if(p&&(!best||p.length<best.length))best=p;
+  }
   return best;
 }
 function float(x,y,txt,color){W.floats.push({x,y,txt,color:color||"#FFB642",t:0})}
@@ -472,6 +506,7 @@ function loadMap(id,px,py){
   // враги, помеченные как убитые ранее, не возвращаются
   pl.x=px!==undefined?px:2;pl.y=py!==undefined?py:2;pl.px=pl.x;pl.py=pl.y;pl.path=[];pl.pend=null;
   W.mode="explore";CB.busy=false;$("#combatbar").style.display="none";
+  F().fmed=0; // бинты полевой медицины восстанавливаются на привале
   toast(m.name);save();updateHUD();
 }
 /* ---------- HUD ---------- */
@@ -529,12 +564,16 @@ function tapTile(tx,ty){
   if(CB.busy||pl.path.length)return;
   const ent=W.ents.find(e=>!e.dead&&e.x===tx&&e.y===ty);
   if(W.mode==="combat"){combatTap(tx,ty,ent&&!ent.exit?ent:null);return}
+  if(tx===pl.x&&ty===pl.y){ctxMenu({id:"self",name:P.name+" (вы)",
+    desc:`Наследник рода Избранного. ОЗ ${P.hp}/${maxHP()}, карма ${P.karma}.`,
+    desc2:"Пип-бой деда тихо гудит на запястье."});return}
   if(ent&&!ent.exit){
     const d=cheb(pl.x,pl.y,tx,ty);
     if(d<=1.5)interact(ent);
-    else{const nf=nearestFree(tx,ty,pl.x,pl.y);
-      if(nf){const p=bfsPath(pl.x,pl.y,nf[0],nf[1]);
-        if(p){pl.path=p;pl.pend=ent.id}else toast("Не подойти")}}
+    else{const p=bestPathAdj(pl.x,pl.y,tx,ty);
+      if(p&&p.length){pl.path=p;pl.pend=ent.id}
+      else if(p)interact(ent);
+      else toast("Не подойти")}
     return;
   }
   const ex=exitAt(tx,ty);
@@ -542,9 +581,158 @@ function tapTile(tx,ty){
   if(p){pl.path=p;pl.pend=null}
 }
 function interact(e){
-  if(e.hostile&&!e.dead){enterCombat();return}
-  if(e.dlg){openDialog(e.dlg,e)}
-  else if(e.use){openDialog(e.use,e)}
+  if(e.hostile&&!e.dead){enterCombat(pl.sneak&&pl.sneakOk);return}
+  ctxMenu(e);
+}
+/* ---------- контекстное меню объекта + СКИЛЛДЕКС (как в Fallout) ---------- */
+function ctxMenu(e){
+  DENT=e;
+  const box=$("#dlg");box.classList.add("show");
+  box.innerHTML=`<div class="who">▸ ${esc(e.name)}</div><div class="opts"></div>`;
+  const ob=box.querySelector(".opts");
+  const add=(t,f)=>{const b=document.createElement("button");b.innerHTML=t;b.onclick=f;ob.appendChild(b)};
+  if(e.dlg)add("💬 Говорить",()=>openDialog(e.dlg,e));
+  if(e.use)add("✋ Использовать",()=>openDialog(e.use,e));
+  add("👁 Осмотреть",()=>examine(e));
+  add("⚙ Применить навык…",()=>skilldex(e));
+  add("[Закрыть]",closeDialog);
+}
+function examine(e){
+  let t=e.desc||"Ничего необычного.";
+  if(stat("P")>=7&&e.desc2)t+=`\n<span class="amber">[Восприятие] ${e.desc2}</span>`;
+  const box=$("#dlg");
+  box.innerHTML=`<div class="who">▸ ${esc(e.name)} · ОСМОТР</div>
+    <div class="txt">${t}</div><div class="opts"></div>`;
+  const ob=box.querySelector(".opts");
+  const b=document.createElement("button");b.textContent="◂ Назад";b.onclick=()=>ctxMenu(e);ob.appendChild(b);
+}
+function skilldex(e){
+  const list=[["lock","Взлом"],["steal","Кража"],["sci","Наука"],["rep","Ремонт"],["med","Медицина"],["gamble","Азарт"]];
+  const box=$("#dlg");
+  box.innerHTML=`<div class="who">▸ СКИЛЛДЕКС → ${esc(e.name)}</div><div class="opts"></div>`;
+  const ob=box.querySelector(".opts");
+  list.forEach(([id,n])=>{const b=document.createElement("button");
+    b.innerHTML=`<span style="display:flex;justify-content:space-between"><span>${n}</span><span class="amber">${skill(id)}%</span></span>`;
+    b.onclick=()=>{closeDialog();applySkill(id,e)};ob.appendChild(b)});
+  const b=document.createElement("button");b.textContent="◂ Назад";b.onclick=()=>ctxMenu(e);ob.appendChild(b);
+}
+/* --- помощники применения навыков --- */
+function tryLock(e,diff,onOk){
+  const k="jam_"+W.mapId+"_"+e.id;
+  if(P.flags[k]){toast("Замок заклинило намертво.");return}
+  const r=roll("lock",diff);
+  if(r.ok){giveXP(80,"взлом замка");onOk()}
+  else{P.flags[k]=1;toast(`Провал (шанс был ${r.ch}%) — замок заклинило.`)}
+  save();
+}
+function hackTerm(e,diff,onOk){
+  const k="hack_"+W.mapId+"_"+e.id;
+  if(P.flags[k+"L"]){toast("ДОСТУП ЗАБЛОКИРОВАН: терминал ушёл в защиту.");return}
+  const r=roll("sci",diff);
+  if(r.ok){giveXP(100,"система взломана");onOk()}
+  else{P.flags[k]=(P.flags[k]||0)+1;
+    if(P.flags[k]>=3){P.flags[k+"L"]=1;toast("Три неверных пароля. ДОСТУП ЗАБЛОКИРОВАН.")}
+    else toast(`Пароль неверен (попытка ${P.flags[k]}/3, шанс был ${r.ch}%).`)}
+  save();
+}
+function pickpocket(e,diff,lootFn,doneChk){
+  if(doneChk&&doneChk()){toast("Больше ничего ценного не нащупать.");return}
+  const r=roll("steal",diff);
+  if(r.ok){giveXP(70,"ловкие пальцы");lootFn()}
+  else{karma(-10);toast(`Поймали за руку! (шанс был ${r.ch}%)`)}
+  save();
+}
+function playDice(e){
+  const bet=15;
+  if(P.caps<bet){toast("Нужно 15 крышек на кон.");return}
+  const r=roll("gamble",45);
+  if(r.ok){P.caps+=bet;toast(`Кости легли верно: +${bet}₵ (шанс ${r.ch}%)`)}
+  else{P.caps-=bet;toast(`Продулись: −${bet}₵ (шанс был ${r.ch}%)`)}
+  updateHUD();
+}
+function fieldMed(){
+  F().fmed=F().fmed||0;
+  if(F().fmed>=2){toast("Бинты кончились — до следующего привала (смены локации).");return}
+  if(P.hp>=maxHP()){toast("Вы здоровы.");return}
+  F().fmed++;
+  const h=8+Math.floor(skill("med")/10)+rnd(0,4);
+  P.hp=Math.min(maxHP(),P.hp+h);
+  toast(`Полевая медицина: +${h} ОЗ (${F().fmed}/2)`);updateHUD();
+}
+const SKAPP={
+ self:{
+  med:()=>fieldMed(),
+  steal:()=>toast("Вы обыскали собственные карманы. Всё на месте, приятно."),
+  sci:()=>toast("Вы мысленно повторяете таблицу элементов. Спокойнее."),
+ },
+ elder:{steal:()=>{karma(-5);toast("Красть у старейшины? Даже пепел смотрит на вас с укором.")}},
+ vill1:{med:()=>{
+   if(F().healed_v){toast("Плечо уже вправлено.");return}
+   const r=roll("med",15);
+   if(r.ok){F().healed_v=1;karma(10);giveXP(100,"вправили плечо");toast("Хрусть. «Ох!.. СПАСИБО, дитя Избранного!»")}
+   else toast("Пациент взвыл и отпрянул. Не вышло.")}},
+ tterm:{
+  sci:e=>hackTerm(e,20,()=>{const g=W.ents.find(x=>x.id==="tgate");if(g)g.dead=true;
+    P.flags["dead_temple_tgate"]=1;
+    if(!F().temple){F().temple="наука";giveXP(80,"Храм: путь науки")}
+    toast("Реле щёлкает: решётка у восточной стены открыта.")}),
+  rep:()=>toast("Питание терминала в норме. Дело не в железе — нужен пароль (Наука)."),
+ },
+ tgate:{
+  lock:e=>tryLock(e,25,()=>{e.dead=true;P.flags["dead_temple_tgate"]=1;
+    if(!F().temple){F().temple="взлом";giveXP(70,"Храм: путь отмычки")}
+    toast("Щелчок. Решётка открыта.")}),
+  rep:e=>{if(skill("rep")<50){toast("Петли прогнили, но без навыка Ремонт 50% их не снять.");return}
+    e.dead=true;P.flags["dead_temple_tgate"]=1;
+    if(!F().temple){F().temple="ремонт";giveXP(150,"Храм: путь механика")}
+    toast("Вы снимаете решётку с прогнивших петель целиком.")},
+  sci:()=>toast("Электроники нет. Но реле решётки заведено на терминал у западной стены."),
+ },
+ chest_t:{
+  lock:e=>tryLock(e,15,()=>{if(F().chest_t){toast("Пусто.");return}
+    F().chest_t=1;P.caps+=25;P.inv.stim=(P.inv.stim||0)+1;P.inv.sawnoff=1;
+    toast("Внутри: 25₵, стимпак и обрез Старого мира!")}),
+  rep:()=>toast("Сундук исправен. Слишком исправен."),
+ },
+ chest_p:{
+  steal:e=>{
+    if(F().chest_p){toast("Уже обчищено.");return}
+    const alive=W.ents.some(x=>x.id.startsWith("cult")&&x.hostile!==undefined&&!x.dead&&!F().pass);
+    if(alive&&!(pl.sneak&&pl.sneakOk)){toast("«ВОР! Пепел заберёт твои руки!»");startPassFight();return}
+    pickpocket(e,25,()=>{F().chest_p=1;P.caps+=20;P.inv.stim=(P.inv.stim||0)+1;
+      toast("Тихо взяли: 20₵ и стимпак.")},()=>F().chest_p)},
+ },
+ yuna:{
+  steal:e=>pickpocket(e,40,()=>{F().stole_yuna=1;P.caps+=35;karma(-15);toast("Кошель Юны перекочевал к вам: +35₵")},()=>F().stole_yuna),
+  gamble:e=>playDice(e),
+ },
+ vega:{steal:e=>pickpocket(e,60,()=>{F().stole_vega=1;P.caps+=30;karma(-15);toast("Крышки НКР: +30₵. Смело.")},()=>F().stole_vega)},
+ bart:{gamble:e=>playDice(e)},
+ slate:{
+  steal:e=>{if(F().key){toast("Ключ уже у вас.");return}
+    pickpocket(e,30,()=>{F().key=1;toast("Ключ-карта склада у вас.")})},
+  med:()=>toast("Диагноз: похмелье пустоши, третья стадия. Лечится только временем."),
+ },
+ ddoor:{
+  lock:e=>tryLock(e,45,()=>depotWin("замок вскрыт")),
+  rep:e=>{if(F().ddoor_fried){toast("Реле сгорело окончательно. Нужен другой путь.");return}
+    const r=roll("rep",40);
+    if(r.ok){giveXP(80,"ремонт реле");depotWin("реле перепаяно")}
+    else{F().ddoor_fried=1;toast(`Искры! (шанс был ${r.ch}%) Реле сгорело — ремонтом уже не взять.`)}},
+  sci:e=>hackTerm(e,50,()=>depotWin("контроллер перезагружен")),
+ },
+ sterm:{
+  sci:e=>hackTerm(e,45,()=>endSlice("stealth")),
+  rep:()=>toast("Станция на геотермальном питании. Всё работает."),
+ },
+};
+function applySkill(id,e){
+  const h=SKAPP[e.id]&&SKAPP[e.id][id];
+  if(h){h(e);return}
+  const dflt={lock:"Здесь нет замка.",steal:"Красть тут нечего.",
+    sci:"Наука разводит руками.",rep:"Чинить нечего.",
+    med:"Пациент не нуждается в помощи.",gamble:"Играть тут не с кем."};
+  toast(dflt[id]||"Ничего не выходит.");
 }
 /* ---------- переходы и агро ---------- */
 function arrived(){
@@ -575,9 +763,11 @@ function checkAggro(){
    БОЙ (на карте мира)
    ===================================================================== */
 function foes(){return W.ents.filter(e=>e.hostile&&!e.dead)}
-function enterCombat(){
+function enterCombat(surprise){
   if(W.mode==="combat")return;
-  W.mode="combat";CB.ap=maxAP();CB.aim="none";CB.log=["Бой! Ваш ход."];pl.path=[];
+  W.mode="combat";CB.ap=maxAP();CB.aim="none";pl.path=[];
+  CB.sneakBonus=!!surprise;
+  CB.log=[CB.sneakBonus?"Вы не замечены: первая атака ×2!":"Бой! Ваш ход."];
   updateHUD();
 }
 function weapon(){return WEAPONS[P.weapon]||WEAPONS.fists}
@@ -599,8 +789,9 @@ function combatTap(tx,ty,ent){
       if(w.rng===1)dm+=Math.max(0,stat("S")-5);
       if(trait("fin"))dm=Math.round(dm*0.7);
       if(trait("blood"))dm=Math.round(dm*1.05);
-      const crit=rnd(1,100)<=stat("L")+(trait("fin")?10:0);
+      const crit=rnd(1,100)<=critChance();
       dm=Math.round(dm*AIM[CB.aim].dm*(crit?2:1));
+      if(CB.sneakBonus){dm*=2;CB.sneakBonus=false;clog("СКРЫТАЯ АТАКА ×2!")}
       ent.hp-=dm;float(ent.x,ent.y,(crit?"КРИТ −":"−")+dm,"#FF4633");
       clog(`${crit?"КРИТ! ":""}${ent.name}: −${dm}`);
       if(AIM[CB.aim].trip&&ent.hp>0&&rnd(1,100)<=40){ent.trip=true;clog(ent.name+" сбит с ног!")}
@@ -621,10 +812,23 @@ function killEnt(e){
   if(e.onDeath)e.onDeath();
 }
 function winCombat(){
-  W.mode="explore";CB.busy=false;
+  W.mode="explore";CB.busy=false;CB.sneakBonus=false;
   const loot=rnd(15,40);P.caps+=loot;toast(`Победа! Добыча: ${loot}₵`);
-  if(F().officer_dead&&W.mapId==="station"&&!F().slice_end){/* терминал открыт */}
   updateHUD();save();
+  if(P.pendPerk>0)setTimeout(openPerkChoice,700);
+}
+function openPerkChoice(){
+  if(!(P.pendPerk>0))return;
+  const avail=PERKS.filter(p=>!perk(p.id)&&(!p.req||p.req()));
+  showOvl(`<div class="scroll" style="margin:auto;width:min(560px,96%)">
+    <h2 class="amber">НОВЫЙ ПЕРК</h2>
+    <div class="sec small" style="margin-bottom:8px">Раз в три уровня Пустошь делает вас особенным. Выберите один:</div>
+    <div class="stack">${avail.map(p=>`<button data-p="${p.id}"><b>${p.n}</b><br><span class="sec small">${p.d}</span></button>`).join("")}</div></div>`);
+  document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{
+    P.perks.push(b.dataset.p);P.pendPerk--;P.hp=Math.min(maxHP(),P.hp+(b.dataset.p==="life"?10:0));
+    toast("Перк получен: "+PERKS.find(x=>x.id===b.dataset.p).n);
+    hideOvl();updateHUD();save();
+  });
 }
 function endPlayerTurn(){
   if(CB.busy||pl.path.length)return;
@@ -651,8 +855,7 @@ function endPlayerTurn(){
       }
       // движение к игроку
       if(ap>0&&cheb(f.x,f.y,pl.x,pl.y)>f.rng){
-        const nf=nearestFree(pl.x,pl.y,f.x,f.y);
-        const p=nf?bfsPath(f.x,f.y,nf[0],nf[1]):null;
+        const p=bestPathAdj(f.x,f.y,pl.x,pl.y);
         if(p&&p.length){const[sx2,sy2]=p[0];f.x=sx2;f.y=sy2;ap--;setTimeout(act,150);return}
       }
       setTimeout(step,200);
@@ -906,9 +1109,9 @@ shop:{who:"ЮНА, ТОРГОВКА",
   {t:"Купить стимпак.",do:()=>buy("stim",25),stay:1},
   {t:"Купить пистолет 9мм.",do:()=>buy("pistol",120),stay:1},
   {t:"Купить охотничью винтовку.",do:()=>buy("rifle",260),stay:1},
-  {t:"Срезать кошель с пояса Юны.",req:{sk:"steal",v:35},do:()=>{
+  {t:"Срезать кошель с пояса Юны.",req:{sk:"steal",v:35},hide:()=>!!F().stole_yuna,do:()=>{
     const r=roll("steal",40);
-    if(r.ok){P.caps+=35;karma(-15);giveXP(100,"ловкие пальцы")}
+    if(r.ok){F().stole_yuna=1;P.caps+=35;karma(-15);giveXP(100,"ловкие пальцы")}
     else{P.caps=Math.max(0,P.caps-20);karma(-15);toast("Пойман! Охрана вытрясла 20 крышек.")}},stay:1},
   {t:"[Уйти]"},
  ]},
@@ -1008,8 +1211,54 @@ function showWorldMap(){
     const n=nodes[+b.dataset.n];
     const msg=n.need&&n.need();
     if(msg){toast(msg);return}
-    hideOvl();loadMap(n.id,n.tx,n.ty);
+    travelTo(n);
   });
+}
+/* ---------- случайные встречи в пути ---------- */
+function travelTo(n){
+  const go=()=>{hideOvl();loadMap(n.id,n.tx,n.ty)};
+  const ch=clamp(45-Math.floor(skill("surv")/3),10,45); // Выживание снижает шанс
+  if(rnd(1,100)>ch){go();return}
+  const ev=pickEvent();
+  showOvl(`<div class="stack" style="margin:auto;width:min(560px,96%)">
+    <h2 class="amber">СЛУЧАЙНАЯ ВСТРЕЧА</h2>
+    <div class="panel"><div class="who sec small" style="margin-bottom:6px">▸ ${ev.who}</div>
+    <div style="white-space:pre-wrap">${ev.text}</div></div>
+    <div class="stack" id="evopts"></div></div>`);
+  const ob=$("#evopts");
+  ev.opts.forEach(o=>{
+    const b=document.createElement("button");
+    let ok=true;
+    if(o.req){ok=o.req.sk?skill(o.req.sk)>=o.req.v:stat(o.req.st)>=o.req.v;
+      const nm=o.req.sk?SKILLS.find(s=>s.id===o.req.sk).n:SPECIAL.find(s=>s[0]===o.req.st)[1];
+      b.innerHTML=`<span class="tag ${ok?"":"off"}">[${nm} ${o.req.v}${o.req.sk?"%":""}]</span> ${esc(o.t)}`}
+    else b.textContent=o.t;
+    b.disabled=!ok;
+    b.onclick=()=>{if(o.do)o.do();go()};
+    ob.appendChild(b);
+  });
+}
+function pickEvent(){
+  if(rnd(1,100)<=stat("L")&&!F().ev_ufo){F().ev_ufo=1;
+    return {who:"СТРАННОЕ МЕСТО",text:"Среди пепла — оплавленный диск с иероглифами не отсюда. Рядом скелет в фуражке и табличка: «СОВЕРШЕННО СЕКРЕТНО».",
+      opts:[{t:"Порыться в обломках.",do:()=>{P.caps+=30;giveXP(100,"специальная встреча");toast("+30₵ и странное ощущение, что за вами наблюдают.")}},
+            {t:"Уйти, пока не поздно."}]};
+  }
+  const evs=[
+   {who:"КАРАВАНЩИК-ОДИНОЧКА",text:"Из пепельной мглы выходит торговец с брамином. «Живой? Редкость. Стимпак нужен? Отдам за 15 — в городе дороже.»",
+    opts:[{t:"Купить стимпак (15₵).",do:()=>{if(P.caps>=15){P.caps-=15;P.inv.stim=(P.inv.stim||0)+1;toast("Стимпак куплен.")}else toast("Не хватает крышек.")}},
+          {t:"Пожелать доброго пути."}]},
+   {who:"РАНЕНЫЙ ПУТНИК",text:"У дороги хрипит человек: нога сломана, губы серые от пепла. «Помоги... или хоть добей по-людски.»",
+    opts:[{t:"Наложить шину и напоить.",req:{sk:"med",v:40},do:()=>{karma(20);giveXP(150,"спасли путника");toast("Он ковыляет на юг, оборачиваясь и кланяясь.")}},
+          {t:"Обыскать его сумку.",do:()=>{P.caps+=15;karma(-15);toast("+15₵. Хрип за спиной становится тише.")}},
+          {t:"Пройти мимо."}]},
+   {who:"ЗАСАДА ГЕККО",text:"Шорох чешуи со всех сторон — стая молодых гекко решила, что вы — обед.",
+    opts:[{t:"Прочитать следы и уйти по камням.",req:{sk:"surv",v:40},do:()=>giveXP(80,"обошли стаю")},
+          {t:"Отпрыгнуть и бежать.",req:{st:"A",v:7},do:()=>giveXP(60,"ушли на рефлексах")},
+          {t:"Прорваться с боем (получите укусы).",do:()=>{const d=rnd(5,12);P.hp=Math.max(1,P.hp-d);P.caps=Math.max(0,P.caps-10);
+            toast(`Прорвались: −${d} ОЗ, потеряли 10₵ из порванной сумки.`)}}]},
+  ];
+  return evs[rnd(0,evs.length-1)];
 }
 
 /* =====================================================================
@@ -1095,8 +1344,11 @@ function openPip(){
   if(pipTab==="stat")body=SPECIAL.map(([k,n])=>`<div class="kv"><span>${n}</span><b>${stat(k)}</b></div>`).join("")+
     `<div class="kv"><span>Очки здоровья</span><b>${P.hp}/${maxHP()}</b></div>
      <div class="kv"><span>Очки действия</span><b>${maxAP()}</b></div>
+     <div class="kv"><span>Шанс крита</span><b>${critChance()}%</b></div>
      <div class="kv"><span>Карма</span><b>${P.karma}</b></div>
-     <div class="kv"><span>Трейты</span><b>${P.traits.map(t=>TRAITS.find(x=>x.id===t).n).join(", ")||"—"}</b></div>`;
+     <div class="kv"><span>Трейты</span><b>${P.traits.map(t=>TRAITS.find(x=>x.id===t).n).join(", ")||"—"}</b></div>
+     <div class="kv"><span>Перки</span><b>${(P.perks||[]).map(t=>PERKS.find(x=>x.id===t).n).join(", ")||"—"}</b></div>`+
+    (P.pendPerk>0?`<button id="bperk" style="margin-top:8px" class="primary">★ ВЫБРАТЬ ПЕРК</button>`:"");
   if(pipTab==="skill")body=`<div class="small sec" style="margin-bottom:6px">Свободных очков: <b class="amber">${P.skpts}</b>${P.skpts?" — тап по навыку":""}</div>`+
     SKILLS.map(s=>`<div class="kv" data-sk="${s.id}" style="cursor:pointer"><span>${P.tags.includes(s.id)?"★ ":""}${s.n}</span><b>${skill(s.id)}%</b></div>`).join("");
   if(pipTab==="inv"){
@@ -1114,6 +1366,7 @@ function openPip(){
     <div class="tabs">${tabs.map(([id,n])=>`<button class="${pipTab===id?"on":""} grow" data-tab="${id}">${n}</button>`).join("")}</div>
     <div class="panel scroll" style="flex:1;min-height:0">${body}</div>
     <button style="margin-top:8px" id="bback">◂ ЗАКРЫТЬ ПИП-БОЙ</button></div>`);
+  const bp=$("#bperk");if(bp)bp.onclick=openPerkChoice;
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{pipTab=b.dataset.tab;openPip()});
   document.querySelectorAll("[data-sk]").forEach(b=>b.onclick=()=>{
     if(P.skpts<=0)return;
